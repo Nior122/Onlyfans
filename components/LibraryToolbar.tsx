@@ -46,7 +46,7 @@ export function LibraryToolbar({
   return (
     <div className="card p-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-        <div className="relative flex-1">
+        <div className="relative min-w-0 flex-1">
           <Search
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
             aria-hidden="true"
@@ -70,7 +70,7 @@ export function LibraryToolbar({
             id="library-category"
             value={category}
             onChange={(event) => onCategoryChange(event.target.value)}
-            className="input !w-auto"
+            className="input !w-auto max-w-full"
           >
             <option value="all">All categories</option>
             {categories.map((name) => (
@@ -88,7 +88,7 @@ export function LibraryToolbar({
             id="library-sort"
             value={sort}
             onChange={(event) => onSortChange(event.target.value as SortOrder)}
-            className="input !w-auto"
+            className="input !w-auto max-w-full"
           >
             <option value="newest">Newest first</option>
             <option value="oldest">Oldest first</option>

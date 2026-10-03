@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +27,7 @@ const FOCUSABLE =
 /**
  * Accessible dialog: labelled, modal, closes on Escape or backdrop click,
  * moves focus inside on open, traps Tab, and restores focus on close.
+ * AnimatePresence keeps it mounted briefly so the exit transition can play.
  */
 export function Modal({
   open,
@@ -94,56 +96,66 @@ export function Modal({
     if (event.target === event.currentTarget) onCloseRef.current();
   }, []);
 
-  if (!open) return null;
-
   return (
-    <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-0 backdrop-blur-sm sm:p-4"
-      onMouseDown={onBackdropMouseDown}
-    >
-      <div className="flex min-h-full items-end justify-center sm:items-center">
-        <div
-          ref={panelRef}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={titleId}
-          aria-describedby={description ? descriptionId : undefined}
-          tabIndex={-1}
-          className={cn(
-            "w-full animate-fade-up rounded-t-2xl border border-line bg-surface shadow-pop sm:rounded-2xl",
-            SIZES[size],
-          )}
+    <AnimatePresence>
+      {open ? (
+        <motion.div
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-0 backdrop-blur-sm sm:p-4"
+          onMouseDown={onBackdropMouseDown}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
         >
-          <div className="flex items-start justify-between gap-4 border-b border-line p-4 sm:p-5">
-            <div>
-              <h2 id={titleId} className="text-base font-semibold">
-                {title}
-              </h2>
-              {description ? (
-                <p id={descriptionId} className="mt-1 text-sm text-muted">
-                  {description}
-                </p>
-              ) : null}
-            </div>
-            <button
-              type="button"
-              onClick={() => onCloseRef.current()}
-              className="rounded-lg p-1.5 text-muted transition-colors hover:bg-subtle hover:text-fg"
-              aria-label="Close dialog"
+          <div className="flex min-h-full items-end justify-center sm:items-center">
+            <motion.div
+              ref={panelRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={titleId}
+              aria-describedby={description ? descriptionId : undefined}
+              tabIndex={-1}
+              initial={{ opacity: 0, y: 12, scale: 0.99 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.99 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className={cn(
+                "w-full rounded-t-2xl border border-line bg-surface shadow-pop sm:rounded-2xl",
+                SIZES[size],
+              )}
             >
-              <X className="h-4 w-4" aria-hidden="true" />
-            </button>
+              <div className="flex items-start justify-between gap-4 border-b border-line p-4 sm:p-5">
+                <div>
+                  <h2 id={titleId} className="text-base font-semibold">
+                    {title}
+                  </h2>
+                  {description ? (
+                    <p id={descriptionId} className="mt-1 text-sm text-muted">
+                      {description}
+                    </p>
+                  ) : null}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onCloseRef.current()}
+                  className="rounded-lg p-1.5 text-muted transition-colors hover:bg-subtle hover:text-fg"
+                  aria-label="Close dialog"
+                >
+                  <X className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </div>
+
+              <div className="max-h-[70vh] overflow-y-auto p-4 sm:p-5">{children}</div>
+
+              {footer ? (
+                <div className="flex flex-wrap items-center justify-end gap-2 border-t border-line p-4 sm:p-5">
+                  {footer}
+                </div>
+              ) : null}
+            </motion.div>
           </div>
-
-          <div className="max-h-[70vh] overflow-y-auto p-4 sm:p-5">{children}</div>
-
-          {footer ? (
-            <div className="flex flex-wrap items-center justify-end gap-2 border-t border-line p-4 sm:p-5">
-              {footer}
-            </div>
-          ) : null}
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
   );
 }

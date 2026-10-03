@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Library, X } from "lucide-react";
+import { AlertTriangle, Library, X } from "lucide-react";
 import { CategoryManager } from "@/components/CategoryManager";
 import { useLibrary } from "@/components/LibraryProvider";
 import { DeletePromptDialog, PromptViewDialog } from "@/components/LibraryModals";
@@ -11,7 +11,7 @@ import { SavePromptDialog } from "@/components/SavePromptDialog";
 import type { SavedPrompt } from "@/lib/types";
 
 export function LibraryView() {
-  const { prompts, ready, updatePrompt, deletePrompt } = useLibrary();
+  const { prompts, ready, storageAvailable, updatePrompt, deletePrompt } = useLibrary();
 
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
@@ -49,6 +49,19 @@ export function LibraryView() {
 
   return (
     <div className="space-y-5">
+      {/* localStorage can be blocked by private mode or site settings; say so
+          rather than letting saves fail silently. */}
+      {ready && !storageAvailable ? (
+        <p
+          role="status"
+          className="flex items-start gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2.5 text-sm text-amber-700 dark:text-amber-300"
+        >
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+          This browser is blocking local storage, so prompts cannot be saved, imported or exported
+          here. Try a normal (non-private) window.
+        </p>
+      ) : null}
+
       <LibraryToolbar
         query={query}
         onQueryChange={setQuery}

@@ -45,7 +45,8 @@ export function Navbar({ view, onViewChange }: NavbarProps) {
           >
             <Sparkles className="h-5 w-5" />
           </span>
-          <span className="truncate text-sm font-semibold sm:text-base">
+          {/* Hidden below sm so the tabs and theme toggle always fit at 360px. */}
+          <span className="hidden truncate text-sm font-semibold sm:inline sm:text-base">
             Master Prompt Builder
           </span>
         </div>

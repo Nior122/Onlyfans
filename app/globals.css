@@ -89,3 +89,21 @@
       text-xs font-medium text-muted;
   }
 }
+
+/*
+ * Visitors who ask for reduced motion keep the loading spinner (it is the only
+ * signal that work is in progress) but lose the decorative animations.
+ * Framer Motion animations are handled by MotionConfig reducedMotion="user".
+ */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-toast-in,
+  .animate-pulse {
+    animation: none !important;
+  }
+
+  .transition-transform,
+  .transition-colors {
+    transition-duration: 0.01ms !important;
+  }
+}

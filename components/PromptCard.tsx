@@ -28,7 +28,7 @@ export function PromptCard({ prompt, onView, onEdit, onDelete }: PromptCardProps
             {prompt.title}
           </button>
         </h3>
-        <span className="badge shrink-0">{prompt.category}</span>
+        <span className="badge max-w-[10rem] shrink-0 truncate">{prompt.category}</span>
       </div>
 
       <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import {
   AlertTriangle,
   BookmarkPlus,
@@ -44,7 +45,11 @@ export function ResultPanel({ state, onRegenerate, onSave }: ResultPanelProps) {
   const sections = countSections(displayText);
 
   return (
-    <section aria-labelledby="result-heading" className="card flex min-h-[24rem] flex-col p-5 sm:p-6">
+    <section
+      aria-labelledby="result-heading"
+      aria-busy={state.status === "loading"}
+      className="card flex min-h-[24rem] flex-col p-5 sm:p-6"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="result-heading" className="text-sm font-semibold">
           Your master prompt
@@ -71,6 +76,13 @@ export function ResultPanel({ state, onRegenerate, onSave }: ResultPanelProps) {
       </p>
 
       <div className="mt-4 flex-1">
+        {/* Keyed by status so each state fades in as it replaces the last. */}
+        <motion.div
+          key={state.status}
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+        >
         {state.status === "idle" ? (
           <div className="grid h-full place-items-center gap-2 rounded-xl border border-dashed border-line px-6 py-12 text-center">
             <FileText className="h-6 w-6 text-muted" aria-hidden="true" />
@@ -125,7 +137,12 @@ export function ResultPanel({ state, onRegenerate, onSave }: ResultPanelProps) {
                 className="input min-h-[22rem] resize-y font-mono text-xs leading-relaxed"
               />
             ) : (
-              <pre className="max-h-[32rem] overflow-auto whitespace-pre-wrap break-words rounded-xl border border-line bg-subtle/50 p-4 font-sans text-sm leading-relaxed">
+              <pre
+                tabIndex={0}
+                role="region"
+                aria-label="Generated master prompt"
+                className="max-h-[32rem] overflow-auto whitespace-pre-wrap break-words rounded-xl border border-line bg-subtle/50 p-4 font-sans text-sm leading-relaxed"
+              >
                 {displayText}
               </pre>
             )}
@@ -194,6 +211,7 @@ export function ResultPanel({ state, onRegenerate, onSave }: ResultPanelProps) {
             </div>
           </div>
         ) : null}
+        </motion.div>
       </div>
     </section>
   );

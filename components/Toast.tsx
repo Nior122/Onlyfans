@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle, CheckCircle2, Info, X } from "lucide-react";
 import { cn, uid } from "@/lib/utils";
 
@@ -71,9 +72,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         aria-live="polite"
         aria-atomic="false"
       >
-        {items.map((item) => (
-          <ToastCard key={item.id} item={item} onDismiss={() => dismiss(item.id)} />
-        ))}
+        <AnimatePresence initial={false}>
+          {items.map((item) => (
+            <ToastCard key={item.id} item={item} onDismiss={() => dismiss(item.id)} />
+          ))}
+        </AnimatePresence>
       </div>
     </ToastContext.Provider>
   );
@@ -84,11 +87,15 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void
     item.variant === "success" ? CheckCircle2 : item.variant === "error" ? AlertTriangle : Info;
 
   return (
-    <div
+    <motion.div
       // Errors interrupt; everything else waits its turn in the live region.
       role={item.variant === "error" ? "alert" : "status"}
+      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 6, scale: 0.98 }}
+      transition={{ duration: 0.18, ease: "easeOut" }}
       className={cn(
-        "pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border bg-surface p-3 shadow-pop animate-toast-in",
+        "pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border bg-surface p-3 shadow-pop",
         item.variant === "error" ? "border-danger/40" : "border-line",
       )}
     >
@@ -112,6 +119,6 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void
       >
         <X className="h-3.5 w-3.5" aria-hidden="true" />
       </button>
-    </div>
+    </motion.div>
   );
 }

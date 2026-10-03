@@ -79,7 +79,7 @@ npm install
 
 # 2. Configure
 cp .env.example .env.local
-#    then set LLM_PROVIDER and LLM_API_KEY (see the provider table below)
+#    then set LLM_BASE_URL (or LLM_PROVIDER), LLM_MODEL and LLM_API_KEY
 
 # 3. Run
 npm run dev
@@ -99,7 +99,7 @@ the browser bundle.
 | --- | --- | --- | --- |
 | `LLM_PROVIDER` | no | `openrouter` | Which provider to call. See the table below. |
 | `LLM_API_KEY` | **yes**\* | — | The key for the selected provider. |
-| `LLM_MODEL` | no\*\* | per provider | Overrides the provider's default model. |
+| `LLM_MODEL` | **yes** | — | The model to call. Never assumed — see below. |
 | `LLM_BASE_URL` | no | per provider | Point at a gateway, a proxy or any compatible server. |
 | `LLM_SITE_URL` | no | — | Attribution header, sent only to providers that use it. |
 | `LLM_SITE_NAME` | no | — | Attribution header, sent only to providers that use it. |
@@ -107,7 +107,10 @@ the browser bundle.
 | `LLM_TEMPERATURE` | no | `0.7` | Set it empty to omit the field, which some reasoning models require. |
 
 \* Not needed for `ollama` or `custom`, which may run without credentials.
-\*\* Required for every provider except OpenRouter and Groq, which ship a default.
+
+There is deliberately **no built-in model**, for any provider. Model names appear and get retired
+faster than this repository changes, so a hardcoded default is a default that eventually breaks a
+deployment at 2am. Three values drive everything: the base URL, the model, and the key.
 
 Provider-specific key names also work, so you can reuse what you already export:
 `GROQ_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` / `GOOGLE_API_KEY`,
@@ -120,33 +123,36 @@ Changing `.env.local` while `npm run dev` is running reloads the variables autom
 
 ## Providers
 
-Every preset below exposes an OpenAI-compatible endpoint, so the request shape never changes.
+Every endpoint below speaks the same OpenAI-compatible format, so the request shape never changes.
 
-| `LLM_PROVIDER` | Base URL | Default model | Get a key |
-| --- | --- | --- | --- |
-| `openrouter` | `https://openrouter.ai/api/v1` | `openai/gpt-4o-mini` | [openrouter.ai/keys](https://openrouter.ai/keys) |
-| `groq` | `https://api.groq.com/openai/v1` | `openai/gpt-oss-120b` | [console.groq.com/keys](https://console.groq.com/keys) |
-| `openai` | `https://api.openai.com/v1` | `gpt-4o-mini` | [platform.openai.com](https://platform.openai.com/api-keys) |
-| `anthropic` | `https://api.anthropic.com/v1` | — (set `LLM_MODEL`) | [console.anthropic.com](https://console.anthropic.com/settings/keys) |
-| `google` | `https://generativelanguage.googleapis.com/v1beta/openai` | — (set `LLM_MODEL`) | [aistudio.google.com](https://aistudio.google.com/app/apikey) |
-| `mistral` | `https://api.mistral.ai/v1` | — (set `LLM_MODEL`) | [console.mistral.ai](https://console.mistral.ai/api-keys) |
-| `deepseek` | `https://api.deepseek.com/v1` | — (set `LLM_MODEL`) | [platform.deepseek.com](https://platform.deepseek.com/api_keys) |
-| `xai` | `https://api.x.ai/v1` | — (set `LLM_MODEL`) | [console.x.ai](https://console.x.ai) |
-| `ollama` | `http://localhost:11434/v1` | — (set `LLM_MODEL`) | none needed — runs locally |
-| `custom` | `LLM_BASE_URL` | — (set `LLM_MODEL`) | whatever your gateway uses |
+Setting `LLM_PROVIDER` only saves you typing a base URL — you can always set `LLM_BASE_URL` yourself,
+and it wins. A model is required in every case.
 
-Switching to Groq, in full:
+| `LLM_PROVIDER` | Base URL it fills in | Where to get a key |
+| --- | --- | --- |
+| `openrouter` | `https://openrouter.ai/api/v1` | [openrouter.ai/keys](https://openrouter.ai/keys) |
+| `groq` | `https://api.groq.com/openai/v1` | [console.groq.com/keys](https://console.groq.com/keys) |
+| `openai` | `https://api.openai.com/v1` | [platform.openai.com](https://platform.openai.com/api-keys) |
+| `anthropic` | `https://api.anthropic.com/v1` | [console.anthropic.com](https://console.anthropic.com/settings/keys) |
+| `google` | `https://generativelanguage.googleapis.com/v1beta/openai` | [aistudio.google.com](https://aistudio.google.com/app/apikey) |
+| `mistral` | `https://api.mistral.ai/v1` | [console.mistral.ai](https://console.mistral.ai/api-keys) |
+| `deepseek` | `https://api.deepseek.com/v1` | [platform.deepseek.com](https://platform.deepseek.com/api_keys) |
+| `xai` | `https://api.x.ai/v1` | [console.x.ai](https://console.x.ai) |
+| `ollama` | `http://localhost:11434/v1` | none needed — runs locally |
+| `custom` | `LLM_BASE_URL` | whatever your gateway uses |
+
+Groq, in full — the URL, the model and the key:
 
 ```bash
-LLM_PROVIDER=groq
+LLM_PROVIDER=groq                       # or LLM_BASE_URL=https://api.groq.com/openai/v1
+LLM_MODEL=openai/gpt-oss-120b           # copy the exact id from Groq's model list
 LLM_API_KEY=gsk_...
-# openai/gpt-oss-120b is used unless LLM_MODEL says otherwise
 ```
 
-Anything not in the table works too — point `LLM_BASE_URL` at it:
+Anything not in the table works the same way — point `LLM_BASE_URL` at it:
 
 ```bash
-LLM_PROVIDER=custom        # or any name you like
+LLM_PROVIDER=custom        # or any name you like, it only labels error messages
 LLM_BASE_URL=https://your-gateway.example/v1
 LLM_MODEL=your-model-id
 # LLM_API_KEY is optional here: leave it out for keyless local servers
@@ -279,10 +285,11 @@ bare array of prompts and skips duplicate ids.
 2. In Vercel choose **Add New → Project** and import the repository. The framework preset is
    detected as Next.js; leave the build command and output directory at their defaults.
 3. Before the first deploy, open **Settings → Environment Variables** and add:
-   - `LLM_PROVIDER` — optional; defaults to `openrouter`. Set `groq`, `openai`, `google`, …
+   - `LLM_PROVIDER` — optional shorthand: `groq`, `openrouter`, `openai`, `google`, … Skips the URL.
+   - `LLM_BASE_URL` — the endpoint instead of a provider name. Overrides `LLM_PROVIDER`.
+   - `LLM_MODEL` — **required**: the exact model id your account can call.
    - `LLM_API_KEY` — your key, marked as **Sensitive**, for Production, Preview and Development.
      Provider-specific names such as `GROQ_API_KEY` work too.
-   - `LLM_MODEL` — optional where the provider ships a default.
    - `LLM_SITE_URL` — your deployed URL, for example `https://your-app.vercel.app`.
 4. Deploy. The route runs on the Node.js runtime with `maxDuration = 60`, which fits Vercel's
    limits on Hobby and Pro plans.
@@ -323,7 +330,7 @@ Notes for production:
 | `No API key for <provider>` | Set `LLM_API_KEY` (or the provider's own variable) and restart, or add it in your host's dashboard. |
 | `<provider> rejected the API key` | Check the key, and make sure `LLM_PROVIDER` matches the provider the key belongs to. |
 | `Unknown provider "…"` | A typo in `LLM_PROVIDER`. Use a name from the provider table, or set `LLM_BASE_URL` for a custom one. |
-| `No model selected for <provider>` | Set `LLM_MODEL` — only OpenRouter and Groq ship a default. |
+| `No model selected` | `LLM_MODEL` is not set. It is required for every provider — copy an exact model id from your provider's model list. |
 | `<provider> rejected the request (HTTP 400)` | The model may not accept `temperature` or the token field. Try `LLM_TEMPERATURE=` or `LLM_MAX_TOKENS_FIELD=max_tokens`. |
 | `Too many requests` | The 10-per-minute limit per IP. Wait for the `Retry-After` window. |
 | `<provider> took too long to respond` | Try a faster model via `LLM_MODEL`. |

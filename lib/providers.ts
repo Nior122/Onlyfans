@@ -7,6 +7,11 @@ import type { GenerateErrorCode } from "@/lib/types";
  * format, so one client in `lib/llm.ts` covers all of them: switching provider
  * changes a base URL, a key and a model name, never the request shape.
  * Adding a provider is one entry in `PROVIDERS`.
+ *
+ * No model is ever assumed. LLM_MODEL is required, for every provider, because
+ * model names are released and retired faster than this file is edited — a
+ * built-in default is a default that rots. The presets only supply a base URL
+ * and a key-variable name; both stay overridable.
  */
 
 export type ProviderId =
@@ -28,8 +33,6 @@ type ProviderPreset = {
   baseUrl: string;
   /** Key variables checked when LLM_API_KEY is not set. */
   apiKeyEnv: string[];
-  /** Used when LLM_MODEL is not set. Absent = the user has to pick a model. */
-  defaultModel?: string;
   /** Local servers that accept requests without credentials. */
   keyOptional?: boolean;
   /** OpenRouter reads these for dashboard attribution; others do not. */
@@ -41,24 +44,20 @@ export const PROVIDERS: Record<ProviderId, ProviderPreset> = {
     label: "OpenRouter",
     baseUrl: "https://openrouter.ai/api/v1",
     apiKeyEnv: ["OPENROUTER_API_KEY"],
-    defaultModel: "openai/gpt-4o-mini",
     attribution: true,
   },
   groq: {
     label: "Groq",
     baseUrl: "https://api.groq.com/openai/v1",
     apiKeyEnv: ["GROQ_API_KEY"],
-    defaultModel: "openai/gpt-oss-120b",
   },
   openai: {
     label: "OpenAI",
     baseUrl: "https://api.openai.com/v1",
     apiKeyEnv: ["OPENAI_API_KEY"],
-    defaultModel: "gpt-4o-mini",
   },
   // Anthropic's OpenAI-compatibility layer. They describe it as suitable for
-  // evaluation rather than production, and their model names move quickly, so
-  // there is no default model here.
+  // evaluation rather than production.
   anthropic: {
     label: "Anthropic",
     baseUrl: "https://api.anthropic.com/v1",
@@ -168,17 +167,13 @@ export function resolveLlmConfig(env: NodeJS.ProcessEnv = process.env): ResolveR
     return { ok: false, code: "INVALID_CONFIG", message };
   }
 
-  const model =
-    read(env, "LLM_MODEL") ||
-    (isOpenRouter ? read(env, "OPENROUTER_MODEL") : "") ||
-    preset.defaultModel ||
-    "";
+  const model = read(env, "LLM_MODEL") || (isOpenRouter ? read(env, "OPENROUTER_MODEL") : "");
 
   if (!model) {
     return {
       ok: false,
       code: "INVALID_CONFIG",
-      message: `No model selected for ${preset.label}. Set LLM_MODEL to a model your account can use.`,
+      message: `No model selected. Set LLM_MODEL to a model name your ${preset.label} account can use.`,
     };
   }
 

@@ -34,7 +34,7 @@ export function FieldShell({
       {required ? (
         <>
           {" "}
-          <span aria-hidden="true" className="text-error">
+          <span aria-hidden="true" className="text-fg-muted">
             *
           </span>
         </>
@@ -49,8 +49,8 @@ export function FieldShell({
           {labelText}
         </label>
       ) : (
-        <div className="mb-2 flex items-baseline justify-between gap-2">
-          <label htmlFor={id} className="text-label text-fg-secondary">
+        <div className="mb-1.5 flex items-baseline justify-between gap-2">
+          <label htmlFor={id} className="text-field font-medium text-fg">
             {labelText}
           </label>
           {trailing}
@@ -60,11 +60,11 @@ export function FieldShell({
       {children}
 
       {error ? (
-        <p id={`${id}-error`} className="mt-2 text-label text-error">
+        <p id={`${id}-error`} className="mt-1.5 text-label text-error">
           {error}
         </p>
       ) : hint ? (
-        <p id={`${id}-hint`} className="mt-2 text-label text-fg-muted">
+        <p id={`${id}-hint`} className="mt-1.5 text-label text-fg-muted">
           {hint}
         </p>
       ) : null}

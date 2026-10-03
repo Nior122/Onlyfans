@@ -79,7 +79,7 @@ export function BuilderView() {
 
   return (
     <>
-      <div className="grid gap-6 lg:grid-cols-[45fr_55fr] lg:items-start">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-start lg:gap-8">
         <GeneratorForm
           isGenerating={state.status === "loading"}
           onGenerate={(input) => void generate(input)}

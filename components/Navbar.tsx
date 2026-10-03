@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { motion } from "framer-motion";
 import { useLibrary } from "@/components/LibraryProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Container } from "@/components/ui/Container";
 import { cn } from "@/lib/utils";
 
 export type AppView = "builder" | "library";
@@ -41,11 +42,11 @@ export function Navbar({ view, onViewChange }: NavbarProps) {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-bg">
-      <div className="mx-auto flex h-14 w-full max-w-container items-center gap-4 px-6 sm:gap-6 sm:px-8">
+      <Container className="flex h-14 items-center gap-6">
         <span className="flex shrink-0 items-center gap-2">
           <span
             aria-hidden="true"
-            className="grid size-6 place-items-center rounded-control bg-accent-solid text-label text-accent-fg"
+            className="grid size-7 place-items-center rounded-control bg-accent-solid text-label font-medium text-accent-fg"
           >
             M
           </span>
@@ -55,7 +56,7 @@ export function Navbar({ view, onViewChange }: NavbarProps) {
         <nav
           role="tablist"
           aria-label="Switch between the builder and your library"
-          className="flex h-14 items-stretch gap-6"
+          className="flex h-14 items-stretch gap-1"
         >
           {TABS.map((tab, index) => {
             const selected = view === tab.id;
@@ -74,7 +75,7 @@ export function Navbar({ view, onViewChange }: NavbarProps) {
                 onClick={() => onViewChange(tab.id)}
                 onKeyDown={(event) => onKeyDown(event, index)}
                 className={cn(
-                  "relative flex items-center gap-2 text-body transition-colors duration-150",
+                  "relative flex items-center gap-2 px-3 text-body font-medium transition-colors duration-150",
                   selected ? "text-fg" : "text-fg-secondary hover:text-fg",
                 )}
               >
@@ -100,7 +101,7 @@ export function Navbar({ view, onViewChange }: NavbarProps) {
         <div className="ml-auto flex items-center">
           <ThemeToggle />
         </div>
-      </div>
+      </Container>
     </header>
   );
 }

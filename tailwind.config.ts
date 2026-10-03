@@ -79,11 +79,12 @@ const config: Config = {
         ],
       },
 
-      /* Type scale: four sizes, tight headings, 1.6 body. */
+      /* Type scale: tight headings, 1.6 body, 13px form labels, 12px meta. */
       fontSize: {
         title: ["28px", { lineHeight: "1.2", letterSpacing: "-0.01em" }],
         section: ["18px", { lineHeight: "1.4" }],
         body: ["14px", { lineHeight: "1.6" }],
+        field: ["13px", { lineHeight: "1.4" }],
         label: ["12px", { lineHeight: "1.4" }],
       },
 
@@ -99,6 +100,8 @@ const config: Config = {
 
       maxWidth: {
         container: "1100px",
+        /* Page description: one comfortable read, ~60 characters. */
+        intro: "60ch",
         /* ~70 characters at 14px, for prompt text. */
         prose: "70ch",
       },

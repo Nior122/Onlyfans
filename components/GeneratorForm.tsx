@@ -95,122 +95,129 @@ export function GeneratorForm({ isGenerating, onGenerate, externalErrors }: Gene
   }
 
   return (
-    <Card padding="md">
-      <form onSubmit={handleSubmit} noValidate className="space-y-4">
-        <Textarea
-          id="goal"
-          label="Goal"
-          required
-          rows={5}
-          maxLength={FIELD_LIMITS.goal}
-          value={values.goal}
-          onChange={(event) => update("goal", event.target.value)}
-          error={errorFor("goal")}
-          hint={`At least ${GOAL_MIN_LENGTH} characters. Specific goals produce better prompts.`}
-          placeholder="What should the AI produce? e.g. Write a landing page that convinces small-business owners to try our invoicing tool."
-          className={cn(errorFor("goal") && "border-error")}
-        />
+    <Card padding="lg" tone="page">
+      <form onSubmit={handleSubmit} noValidate>
+        <div className="space-y-5">
+          {/* Essentials first: what you want, who the AI is, what it produces. */}
+          <Textarea
+            id="goal"
+            label="Goal"
+            required
+            rows={4}
+            maxLength={FIELD_LIMITS.goal}
+            value={values.goal}
+            onChange={(event) => update("goal", event.target.value)}
+            error={errorFor("goal")}
+            hint={`At least ${GOAL_MIN_LENGTH} characters.`}
+            placeholder="Write a landing page that convinces small-business owners to try our invoicing tool."
+            className={cn(errorFor("goal") && "border-error")}
+          />
 
-        <Input
-          id="role"
-          label="Role"
-          required
-          maxLength={FIELD_LIMITS.role}
-          value={values.role}
-          onChange={(event) => update("role", event.target.value)}
-          error={errorFor("role")}
-          placeholder="e.g. Marketing Strategist"
-          className={cn(errorFor("role") && "border-error")}
-        />
-
-        <RoleChips value={values.role} onChange={(role) => update("role", role)} />
-
-        <Select
-          id="outputType"
-          label="Output type"
-          required
-          options={OUTPUT_TYPES}
-          placeholder="Select an output type…"
-          value={values.outputType}
-          onChange={(event) =>
-            update("outputType", event.target.value as FormValues["outputType"])
-          }
-          error={errorFor("outputType")}
-          hint="Shapes the prompt's structure and quality rules."
-          className={cn(errorFor("outputType") && "border-error")}
-        />
-
-        {/* Advanced — secondary options, collapsed until asked for. */}
-        <div className="border-t border-border pt-4">
-          <button
-            type="button"
-            onClick={() => setShowAdvanced((open) => !open)}
-            aria-expanded={showAdvanced}
-            aria-controls="advanced-fields"
-            className="flex w-full items-center gap-2 rounded-control py-1 text-left text-body text-fg-secondary transition-colors duration-150 hover:text-fg"
-          >
-            <ChevronDown
-              className={cn("size-4 transition-transform duration-150", showAdvanced && "rotate-180")}
-              aria-hidden="true"
+          <div className="space-y-2">
+            <Input
+              id="role"
+              label="Role"
+              required
+              maxLength={FIELD_LIMITS.role}
+              value={values.role}
+              onChange={(event) => update("role", event.target.value)}
+              error={errorFor("role")}
+              placeholder="e.g. Marketing Strategist"
+              className={cn(errorFor("role") && "border-error")}
             />
-            Advanced options
-            <span className="text-label text-fg-muted">
-              tone, audience, length, constraints
-            </span>
-          </button>
+            <RoleChips value={values.role} onChange={(role) => update("role", role)} />
+          </div>
 
-          <AnimatePresence initial={false}>
-            {showAdvanced ? (
-              <motion.div
-                id="advanced-fields"
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 4 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
-                className="grid gap-4 pt-4 sm:grid-cols-2"
-              >
-                <Input
-                  id="tone"
-                  label="Tone"
-                  maxLength={FIELD_LIMITS.tone}
-                  value={values.tone ?? ""}
-                  onChange={(event) => update("tone", event.target.value)}
-                  error={errorFor("tone")}
-                  placeholder="Direct, warm, no jargon"
-                />
-                <Input
-                  id="audience"
-                  label="Target audience"
-                  maxLength={FIELD_LIMITS.audience}
-                  value={values.audience ?? ""}
-                  onChange={(event) => update("audience", event.target.value)}
-                  error={errorFor("audience")}
-                  placeholder="First-time founders"
-                />
-                <Input
-                  id="length"
-                  label="Desired length"
-                  maxLength={FIELD_LIMITS.length}
-                  value={values.length ?? ""}
-                  onChange={(event) => update("length", event.target.value)}
-                  error={errorFor("length")}
-                  placeholder="800-1000 words"
-                />
-                <Input
-                  id="constraints"
-                  label="Extra constraints"
-                  maxLength={FIELD_LIMITS.constraints}
-                  value={values.constraints ?? ""}
-                  onChange={(event) => update("constraints", event.target.value)}
-                  error={errorFor("constraints")}
-                  placeholder="No emoji, cite sources"
-                />
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
+          <Select
+            id="outputType"
+            label="Output type"
+            required
+            options={OUTPUT_TYPES}
+            placeholder="Select an output type…"
+            value={values.outputType}
+            onChange={(event) =>
+              update("outputType", event.target.value as FormValues["outputType"])
+            }
+            error={errorFor("outputType")}
+            hint="Shapes the structure and quality rules."
+            className={cn(errorFor("outputType") && "border-error")}
+          />
+
+          {/* Advanced — secondary options, collapsed until asked for. */}
+          <div className="border-t border-border">
+            <button
+              type="button"
+              onClick={() => setShowAdvanced((open) => !open)}
+              aria-expanded={showAdvanced}
+              aria-controls="advanced-fields"
+              className="flex w-full items-center gap-2 py-4 text-left text-body font-medium text-fg transition-colors duration-150"
+            >
+              Advanced options
+              <span className="hidden text-label font-normal text-fg-muted sm:inline">
+                tone, audience, length, constraints
+              </span>
+              <ChevronDown
+                className={cn(
+                  "ml-auto size-4 shrink-0 text-fg-muted transition-transform duration-150",
+                  showAdvanced && "rotate-180",
+                )}
+                aria-hidden="true"
+              />
+            </button>
+
+            <AnimatePresence initial={false}>
+              {showAdvanced ? (
+                <motion.div
+                  id="advanced-fields"
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
+                  className="grid gap-4 pb-4 sm:grid-cols-2"
+                >
+                  <Input
+                    id="tone"
+                    label="Tone"
+                    maxLength={FIELD_LIMITS.tone}
+                    value={values.tone ?? ""}
+                    onChange={(event) => update("tone", event.target.value)}
+                    error={errorFor("tone")}
+                    placeholder="Direct, warm, no jargon"
+                  />
+                  <Input
+                    id="audience"
+                    label="Target audience"
+                    maxLength={FIELD_LIMITS.audience}
+                    value={values.audience ?? ""}
+                    onChange={(event) => update("audience", event.target.value)}
+                    error={errorFor("audience")}
+                    placeholder="First-time founders"
+                  />
+                  <Input
+                    id="length"
+                    label="Desired length"
+                    maxLength={FIELD_LIMITS.length}
+                    value={values.length ?? ""}
+                    onChange={(event) => update("length", event.target.value)}
+                    error={errorFor("length")}
+                    placeholder="800-1000 words"
+                  />
+                  <Input
+                    id="constraints"
+                    label="Extra constraints"
+                    maxLength={FIELD_LIMITS.constraints}
+                    value={values.constraints ?? ""}
+                    onChange={(event) => update("constraints", event.target.value)}
+                    error={errorFor("constraints")}
+                    placeholder="No emoji, cite sources"
+                  />
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+          </div>
         </div>
 
-        <div className="space-y-2 pt-2">
+        <div className="space-y-2 pt-6">
           <Button
             type="submit"
             size="lg"
@@ -227,7 +234,7 @@ export function GeneratorForm({ isGenerating, onGenerate, externalErrors }: Gene
           </Button>
 
           {hasContent && !isGenerating ? (
-            <Button variant="ghost" onClick={reset} className="w-full sm:w-auto">
+            <Button variant="ghost" onClick={reset} className="w-full">
               Clear form
             </Button>
           ) : null}

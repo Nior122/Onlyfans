@@ -29,8 +29,8 @@
     /* Text — 17.7:1, 7.7:1, 4.8:1 on #FFFFFF */
     --fg: 24 24 27; /* #18181B */
     --fg-secondary: 82 82 91; /* #52525B */
-    --fg-muted: 107 107 116; /* #6B6B74 — clears 4.5:1 on all three surfaces */
-    --fg-placeholder: 107 107 116; /* #6B6B74 — spec #A1A1AA is 2.6:1, fails AA text */
+    --fg-muted: 113 113 122; /* #71717A — 4.83:1 on white, 4.63:1 on surface */
+    --fg-placeholder: 113 113 122; /* #71717A — placeholder text is text: AA applies */
 
     /* One accent hue, three applications, because a single value cannot
        satisfy both roles: edges need 3:1, text needs 4.5:1, and a filled
@@ -94,11 +94,13 @@
   }
 
   html {
+    /* 16px root: every rem in the design system resolves against this. */
+    font-size: 16px;
     -webkit-text-size-adjust: 100%;
   }
 
   body {
-    @apply bg-bg text-fg antialiased;
+    @apply bg-bg text-body text-fg antialiased;
   }
 
   /* Focus: 2px accent ring, no offset, no default outline. */

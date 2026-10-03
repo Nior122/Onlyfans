@@ -13,7 +13,7 @@ export type TextareaProps = Omit<React.TextareaHTMLAttributes<HTMLTextAreaElemen
   labelHidden?: boolean;
 };
 
-/** Multi-line field: 12px padding all round, minimum height 120px. */
+/** Multi-line field: 12px padding all round, minimum height 112px. */
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
   { id, label, hint, error, required, labelHidden, className, rows = 5, ...props },
   ref,
@@ -34,7 +34,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
         rows={rows}
         aria-invalid={error ? true : undefined}
         aria-describedby={fieldDescribedBy(id, hint, error)}
-        className={cn(controlClass, "min-h-[120px] w-full resize-y py-3", className)}
+        className={cn(controlClass, "min-h-28 w-full resize-y py-3", className)}
         {...props}
       />
     </FieldShell>

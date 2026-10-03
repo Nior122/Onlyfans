@@ -6,11 +6,16 @@ import { Navbar, type AppView } from "@/components/Navbar";
 import { BuilderView } from "@/components/BuilderView";
 import { LibraryProvider } from "@/components/LibraryProvider";
 import { LibraryView } from "@/components/LibraryView";
+import { Container } from "@/components/ui/Container";
 import { ToastProvider } from "@/components/ui/Toast";
 
 /**
  * Client shell that owns the active view. `app/page.tsx` stays a server
  * component so metadata stays where it belongs.
+ *
+ * Every band of the page — navbar, main, footer — puts its content in the same
+ * Container, which is what keeps the logo, the page title and the form card on
+ * one left edge.
  *
  * MotionConfig reducedMotion="user" makes every Framer Motion animation in the
  * tree respect the visitor's OS "reduce motion" setting.
@@ -38,33 +43,31 @@ export function AppShell() {
           <div className="flex min-h-dvh flex-col">
             <Navbar view={view} onViewChange={setView} />
 
-            <main
-              id="main"
-              className="mx-auto w-full max-w-container flex-1 px-6 py-8 sm:px-8 sm:py-12"
-            >
-              <section className="mb-8">
-                <h1 className="text-title font-semibold">Turn a goal into a master prompt</h1>
-                <p className="mt-2 max-w-prose text-body text-fg-secondary">
-                  Describe what you need, pick a role and an output type. You get a structured,
-                  role-based prompt with steps, rules and a quality checklist — ready to save or
-                  paste into any AI tool.
-                </p>
-              </section>
+            <main id="main" className="flex-1">
+              <Container className="pb-12 pt-10">
+                <section className="mb-8">
+                  <h1 className="text-title font-semibold">Turn a goal into a master prompt</h1>
+                  <p className="mt-2 max-w-intro text-body text-fg-secondary">
+                    Describe what you need, pick a role and an output type — you get a structured
+                    prompt ready to paste anywhere.
+                  </p>
+                </section>
 
-              <ViewPanel id="builder" active={view === "builder"} panelRef={builderRef}>
-                <BuilderView />
-              </ViewPanel>
+                <ViewPanel id="builder" active={view === "builder"} panelRef={builderRef}>
+                  <BuilderView />
+                </ViewPanel>
 
-              <ViewPanel id="library" active={view === "library"} panelRef={libraryRef}>
-                <LibraryView onNavigateToBuilder={() => setView("builder")} />
-              </ViewPanel>
+                <ViewPanel id="library" active={view === "library"} panelRef={libraryRef}>
+                  <LibraryView onNavigateToBuilder={() => setView("builder")} />
+                </ViewPanel>
+              </Container>
             </main>
 
             <footer className="border-t border-border">
-              <div className="mx-auto flex w-full max-w-container flex-col gap-1 px-6 py-6 text-label text-fg-muted sm:flex-row sm:items-center sm:justify-between sm:px-8">
+              <Container className="flex flex-col gap-1 py-6 text-label text-fg-muted sm:flex-row sm:items-center sm:justify-between">
                 <p>Master Prompt Builder — a portfolio project.</p>
                 <p>Your prompts are stored in this browser only.</p>
-              </div>
+              </Container>
             </footer>
           </div>
         </LibraryProvider>

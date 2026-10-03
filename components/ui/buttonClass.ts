@@ -10,7 +10,7 @@ export type ButtonSize = "md" | "lg" | "icon";
 
 const BASE =
   "inline-flex shrink-0 select-none items-center justify-center gap-2 rounded-control " +
-  "transition-colors duration-150 [&_svg]:size-4 " +
+  "text-body font-medium transition-colors duration-150 " +
   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent " +
   "disabled:pointer-events-none disabled:opacity-50";
 
@@ -20,11 +20,12 @@ const VARIANTS: Record<ButtonVariant, string> = {
   ghost: "text-fg-secondary hover:bg-hover hover:text-fg",
 };
 
+/* Glyph size sits with the size variant, so an icon button never fights the
+   base rule for the other two. */
 const SIZES: Record<ButtonSize, string> = {
-  md: "h-9 px-3 text-body",
-  lg: "h-10 px-4 text-body",
-  /* 40px on touch screens, 36px with a pointer. */
-  icon: "h-10 w-10 sm:h-9 sm:w-9",
+  md: "h-9 px-3 [&_svg]:size-4",
+  lg: "h-10 px-4 [&_svg]:size-4",
+  icon: "size-9 [&_svg]:size-[18px]",
 };
 
 export function buttonClass({

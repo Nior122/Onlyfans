@@ -54,17 +54,6 @@ const config: Config = {
         error: "rgb(var(--error) / <alpha-value>)",
         "error-solid": "rgb(var(--error-solid) / <alpha-value>)",
         "error-solid-fg": "rgb(var(--error-solid-fg) / <alpha-value>)",
-
-        /* --- transitional aliases (phase 6 removes this block) --- */
-        line: "rgb(var(--border) / <alpha-value>)",
-        muted: "rgb(var(--fg-secondary) / <alpha-value>)",
-        danger: "rgb(var(--error) / <alpha-value>)",
-        brand: {
-          DEFAULT: "rgb(var(--accent) / <alpha-value>)",
-          strong: "rgb(var(--accent-solid-hover) / <alpha-value>)",
-          soft: "rgb(var(--accent-subtle) / <alpha-value>)",
-          fg: "rgb(var(--accent-fg) / <alpha-value>)",
-        },
       },
 
       fontFamily: {
@@ -117,26 +106,10 @@ const config: Config = {
       /* One soft shadow, floating elements only. */
       boxShadow: {
         overlay: "var(--shadow-overlay)",
-        pop: "var(--shadow-overlay)", // transitional alias
       },
 
       transitionDuration: {
         DEFAULT: "150ms",
-      },
-
-      /*
-       * Transitional: the advanced-options panel still uses animate-fade-up.
-       * Retimed to the design system's 150ms / 4px so it matches the spec, and
-       * removed in phase 6 when that panel becomes a motion element.
-       */
-      keyframes: {
-        "fade-up": {
-          from: { opacity: "0", transform: "translateY(4px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
-        },
-      },
-      animation: {
-        "fade-up": "fade-up 150ms ease-out both",
       },
     },
   },

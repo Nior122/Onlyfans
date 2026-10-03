@@ -7,12 +7,12 @@ export function Card({
   className,
   children,
 }: {
-  padding?: "none" | "sm" | "md";
+  padding?: "none" | "md";
   interactive?: boolean;
   className?: string;
   children: React.ReactNode;
 }) {
-  const PADDING = { none: "", sm: "p-4", md: "p-5" } as const;
+  const PADDING = { none: "", md: "p-5" } as const;
 
   return (
     <div

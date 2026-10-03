@@ -1,5 +1,31 @@
 import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
+
+/**
+ * Inter, self-hosted (latin subset, variable weights 100-900).
+ *
+ * The file lives in app/fonts so builds never depend on a font CDN: no network
+ * request at build time, no render-blocking request at runtime, and no layout
+ * shift. Inter is licensed under the SIL Open Font License — see
+ * app/fonts/INTER-LICENSE.txt.
+ */
+const inter = localFont({
+  src: [{ path: "./fonts/inter-latin-variable.woff2", weight: "100 900", style: "normal" }],
+  display: "swap",
+  variable: "--font-inter",
+  preload: true,
+  fallback: [
+    "ui-sans-serif",
+    "system-ui",
+    "-apple-system",
+    "Segoe UI",
+    "Roboto",
+    "Helvetica Neue",
+    "Arial",
+    "sans-serif",
+  ],
+});
 
 export const metadata: Metadata = {
   title: {
@@ -12,8 +38,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8f9fc" },
-    { media: "(prefers-color-scheme: dark)", color: "#080a11" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -28,17 +54,17 @@ const themeInitScript = `(function(){try{var s=localStorage.getItem("mpb:theme")
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       {/* suppressHydrationWarning: browser extensions (e.g. Grammarly) inject
           attributes onto <body> before React hydrates. The body's own
           attributes are static, so nothing real can be hidden here. */}
-      <body className="min-h-dvh font-sans" suppressHydrationWarning>
+      <body className="bg-bg font-sans text-fg" suppressHydrationWarning>
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-brand focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-brand-fg"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-control focus:bg-accent-solid focus:px-3 focus:py-2 focus:text-body focus:font-medium focus:text-accent-fg"
         >
           Skip to content
         </a>

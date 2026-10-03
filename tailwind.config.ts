@@ -79,9 +79,10 @@ const config: Config = {
         ],
       },
 
-      /* Type scale: tight headings, 1.6 body, 13px form labels, 12px meta. */
+      /* Type scale: tight headings, 15px page description, 1.6 body, 13px form labels, 12px meta. */
       fontSize: {
         title: ["28px", { lineHeight: "1.2", letterSpacing: "-0.01em" }],
+        lead: ["15px", { lineHeight: "1.6" }],
         section: ["18px", { lineHeight: "1.4" }],
         body: ["14px", { lineHeight: "1.6" }],
         field: ["13px", { lineHeight: "1.4" }],
@@ -92,6 +93,17 @@ const config: Config = {
         prompt: "1.7",
       },
 
+      /* Control heights that are not on the 8px spacing scale. */
+      height: {
+        chip: "30px",
+        cta: "44px",
+      },
+
+      /* Focus ring: 3px soft accent wash on a control that has focus. */
+      ringWidth: {
+        focus: "3px",
+      },
+
       /* Three radii: controls, cards, pills. */
       borderRadius: {
         control: "8px",
@@ -100,8 +112,8 @@ const config: Config = {
 
       maxWidth: {
         container: "1100px",
-        /* Page description: one comfortable read, ~60 characters. */
-        intro: "60ch",
+        /* Page description: one comfortable read, capped at 640px. */
+        intro: "640px",
         /* ~70 characters at 14px, for prompt text. */
         prose: "70ch",
       },

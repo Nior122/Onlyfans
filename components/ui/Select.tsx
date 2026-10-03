@@ -58,7 +58,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
           aria-describedby={fieldDescribedBy(id, hint, error)}
           className={cn(
             controlClass,
-            "h-10 appearance-none pr-8",
+            "h-10 appearance-none pr-9",
             width === "full" ? "w-full" : "w-auto",
             className,
           )}

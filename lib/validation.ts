@@ -1,7 +1,7 @@
 import type { GeneratorInput, OutputType } from "@/lib/types";
 import { OUTPUT_TYPES } from "@/lib/types";
 
-/** Hard caps per field, enforced on the server and reused by the form. */
+/** Hard caps per field, enforced in the form and again on the server. */
 export const FIELD_LIMITS = {
   goal: 2000,
   role: 120,
@@ -12,19 +12,35 @@ export const FIELD_LIMITS = {
   constraints: 1000,
 } as const;
 
-/** Minimum length for the goal — shorter text cannot produce a useful prompt. */
 export const GOAL_MIN_LENGTH = 10;
+export const ROLE_MIN_LENGTH = 2;
 
-export type ValidationSuccess = { ok: true; input: GeneratorInput };
-export type ValidationFailure = {
-  ok: false;
-  message: string;
-  fields: Record<string, string>;
+/** Human labels for the fields, reused by error messages and the form. */
+export const FIELD_LABELS: Record<keyof typeof FIELD_LIMITS, string> = {
+  goal: "Goal",
+  role: "Role",
+  outputType: "Output type",
+  tone: "Tone",
+  audience: "Target audience",
+  length: "Desired length",
+  constraints: "Extra constraints",
 };
-export type ValidationResult = ValidationSuccess | ValidationFailure;
+
+export type FieldErrors = Record<string, string>;
+
+/**
+ * Form-shaped input: identical to GeneratorInput except the output type may
+ * still be empty while the user is choosing one.
+ */
+export type ValidatableInput = Omit<GeneratorInput, "outputType"> & { outputType: string };
+
+/** Type guard so callers can narrow a free-form string to OutputType. */
+export function isOutputType(value: string): value is OutputType {
+  return (OUTPUT_TYPES as readonly string[]).includes(value);
+}
 
 /** Drops control characters (keeping newlines and tabs) and tidies whitespace. */
-function sanitizeText(value: string): string {
+export function sanitizeText(value: string): string {
   return value
     .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
     .replace(/\r\n/g, "\n")
@@ -32,25 +48,62 @@ function sanitizeText(value: string): string {
     .trim();
 }
 
-/** Reads an optional string field, returning undefined when absent or blank. */
-function readOptional(
+/**
+ * The single source of truth for field rules. Used by the form for immediate
+ * feedback and by the API route for untrusted input, so both always agree.
+ */
+export function validateGeneratorInput(input: ValidatableInput): FieldErrors {
+  const errors: FieldErrors = {};
+
+  const goal = input.goal.trim();
+  if (goal.length < GOAL_MIN_LENGTH) {
+    errors.goal = `Describe your goal in at least ${GOAL_MIN_LENGTH} characters.`;
+  } else if (goal.length > FIELD_LIMITS.goal) {
+    errors.goal = `Keep the goal under ${FIELD_LIMITS.goal} characters.`;
+  }
+
+  const role = input.role.trim();
+  if (role.length < ROLE_MIN_LENGTH) {
+    errors.role = "Add a role, or pick one of the suggestions.";
+  } else if (role.length > FIELD_LIMITS.role) {
+    errors.role = `Keep the role under ${FIELD_LIMITS.role} characters.`;
+  }
+
+  if (!isOutputType(input.outputType)) {
+    errors.outputType = "Choose an output type from the list.";
+  }
+
+  for (const key of ["tone", "audience", "length", "constraints"] as const) {
+    const value = input[key];
+    if (value && value.length > FIELD_LIMITS[key]) {
+      errors[key] = `Keep this under ${FIELD_LIMITS[key]} characters.`;
+    }
+  }
+
+  return errors;
+}
+
+export type ValidationSuccess = { ok: true; input: GeneratorInput };
+export type ValidationFailure = {
+  ok: false;
+  message: string;
+  fields: FieldErrors;
+};
+export type ValidationResult = ValidationSuccess | ValidationFailure;
+
+/** Reads one field as sanitized text, recording a type error when it is not a string. */
+function readField(
   source: Record<string, unknown>,
   key: keyof typeof FIELD_LIMITS,
-  fields: Record<string, string>,
-): string | undefined {
+  fields: FieldErrors,
+): string {
   const raw = source[key];
-  if (raw === undefined || raw === null) return undefined;
+  if (raw === undefined || raw === null) return "";
   if (typeof raw !== "string") {
     fields[key] = "Must be text.";
-    return undefined;
+    return "";
   }
-  const value = sanitizeText(raw);
-  if (!value) return undefined;
-  if (value.length > FIELD_LIMITS[key]) {
-    fields[key] = `Keep this under ${FIELD_LIMITS[key]} characters.`;
-    return undefined;
-  }
-  return value;
+  return sanitizeText(raw);
 }
 
 /**
@@ -58,64 +111,43 @@ function readOptional(
  * Never throws: callers branch on `ok`.
  */
 export function parseGeneratorInput(body: unknown): ValidationResult {
-  const fields: Record<string, string> = {};
-
   if (typeof body !== "object" || body === null || Array.isArray(body)) {
-    return { ok: false, message: "Request body must be a JSON object.", fields };
+    return { ok: false, message: "Request body must be a JSON object.", fields: {} };
   }
 
   const source = body as Record<string, unknown>;
+  const typeErrors: FieldErrors = {};
 
-  // Goal — required.
-  let goal = "";
-  if (typeof source.goal !== "string") {
-    fields.goal = "Describe your goal.";
-  } else {
-    goal = sanitizeText(source.goal);
-    if (goal.length < GOAL_MIN_LENGTH) {
-      fields.goal = `Add a little more detail (at least ${GOAL_MIN_LENGTH} characters).`;
-    } else if (goal.length > FIELD_LIMITS.goal) {
-      fields.goal = `Keep this under ${FIELD_LIMITS.goal} characters.`;
-    }
+  const goal = readField(source, "goal", typeErrors);
+  const role = readField(source, "role", typeErrors);
+  const outputType = readField(source, "outputType", typeErrors);
+  const tone = readField(source, "tone", typeErrors);
+  const audience = readField(source, "audience", typeErrors);
+  const length = readField(source, "length", typeErrors);
+  const constraints = readField(source, "constraints", typeErrors);
+
+  const errors: FieldErrors = {
+    ...validateGeneratorInput({ goal, role, outputType, tone, audience, length, constraints }),
+    ...typeErrors,
+  };
+
+  if (Object.keys(errors).length > 0) {
+    return { ok: false, message: "Some fields need attention.", fields: errors };
   }
 
-  // Role — required, free text.
-  let role = "";
-  if (typeof source.role !== "string") {
-    fields.role = "Add a role.";
-  } else {
-    role = sanitizeText(source.role);
-    if (role.length < 2) {
-      fields.role = "Add a role.";
-    } else if (role.length > FIELD_LIMITS.role) {
-      fields.role = `Keep this under ${FIELD_LIMITS.role} characters.`;
-    }
-  }
-
-  // Output type — required, must be one of the known options.
-  let outputType: OutputType | undefined;
-  if (typeof source.outputType !== "string") {
-    fields.outputType = "Choose an output type.";
-  } else {
-    const candidate = sanitizeText(source.outputType);
-    if (!(OUTPUT_TYPES as readonly string[]).includes(candidate)) {
-      fields.outputType = "Choose an output type from the list.";
-    } else {
-      outputType = candidate as OutputType;
-    }
-  }
-
-  const tone = readOptional(source, "tone", fields);
-  const audience = readOptional(source, "audience", fields);
-  const length = readOptional(source, "length", fields);
-  const constraints = readOptional(source, "constraints", fields);
-
-  if (Object.keys(fields).length > 0 || !outputType) {
-    return { ok: false, message: "Some fields need attention.", fields };
-  }
+  // Safe: validateGeneratorInput only passes when isOutputType(outputType) held.
+  const checkedOutputType = outputType as OutputType;
 
   return {
     ok: true,
-    input: { goal, role, outputType, tone, audience, length, constraints },
+    input: {
+      goal,
+      role,
+      outputType: checkedOutputType,
+      tone: tone || undefined,
+      audience: audience || undefined,
+      length: length || undefined,
+      constraints: constraints || undefined,
+    },
   };
 }

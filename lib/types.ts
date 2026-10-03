@@ -97,3 +97,10 @@ export function isGenerateSuccess(
 ): response is GenerateSuccessResponse {
   return typeof (response as GenerateSuccessResponse).prompt === "string";
 }
+
+/** Lifecycle of a single generation request, rendered by the result panel. */
+export type GenerationState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "error"; message: string; fields?: Record<string, string> }
+  | { status: "success"; prompt: string; model: string };

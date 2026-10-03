@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Bookmark, Info, Wand2 } from "lucide-react";
+import { Bookmark, Info } from "lucide-react";
+import { BuilderView } from "@/components/BuilderView";
 import { Navbar, type AppView } from "@/components/Navbar";
 
 /**
@@ -33,7 +34,7 @@ export function AppShell() {
           aria-labelledby="tab-builder"
           hidden={view !== "builder"}
         >
-          <BuilderPlaceholder />
+          <BuilderView />
         </div>
         <div
           role="tabpanel"
@@ -55,19 +56,7 @@ export function AppShell() {
   );
 }
 
-/* Phase 1 placeholders: replaced by GeneratorForm/ResultPanel and LibraryView. */
-
-function BuilderPlaceholder() {
-  return (
-    <div className="card grid place-items-center gap-3 px-6 py-16 text-center">
-      <Wand2 className="h-6 w-6 text-brand" aria-hidden="true" />
-      <p className="text-sm font-medium">The builder lands in the next phase.</p>
-      <p className="max-w-md text-sm text-muted">
-        Form fields, role chips and the result panel with copy, regenerate and edit are coming up.
-      </p>
-    </div>
-  );
-}
+/* Phase 1 placeholder: replaced by LibraryView in Phase 4. */
 
 function LibraryPlaceholder() {
   return (

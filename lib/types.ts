@@ -78,6 +78,7 @@ export type GenerateErrorCode =
   | "VALIDATION_ERROR"
   | "RATE_LIMITED"
   | "MISSING_API_KEY"
+  | "INVALID_CONFIG"
   | "UPSTREAM_ERROR"
   | "UPSTREAM_TIMEOUT";
 

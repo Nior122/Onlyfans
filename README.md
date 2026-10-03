@@ -4,7 +4,9 @@ Turn a rough idea — a goal, a role and an output type — into a structured, r
 prompt** you can reuse anywhere. Save prompts to a local library, search and filter them, and
 export the whole thing as JSON.
 
-A Next.js portfolio project with a server-side OpenRouter integration: the API key never reaches
+A Next.js portfolio project with a server-side LLM integration. It speaks the OpenAI-compatible
+`chat/completions` format, so it runs against **OpenRouter, Groq, OpenAI, Anthropic, Gemini,
+Mistral, DeepSeek, xAI, Ollama or any other compatible endpoint** — and the API key never reaches
 the browser.
 
 ---
@@ -58,17 +60,18 @@ the browser.
 | Styling | Tailwind CSS 3.4 with CSS-variable theming (tokens in `app/globals.css`) |
 | Motion | Framer Motion (small transitions only) |
 | Icons | lucide-react |
-| LLM | OpenRouter `chat/completions` |
+| LLM | Any OpenAI-compatible `chat/completions` endpoint (OpenRouter, Groq, OpenAI, …) |
 | Storage | `localStorage` (no database in v1) |
 
-No Gemini, no Google AI SDKs, no client-side API keys.
+No provider SDKs and no client-side API keys: one `fetch` against a base URL you configure.
 
 ---
 
 ## Quick start
 
-Requires **Node.js 20.9 or newer** (Next.js 16 requires it) and a free
-[OpenRouter](https://openrouter.ai/keys) key.
+Requires **Node.js 20.9 or newer** (Next.js 16 requires it) and an API key from any supported
+provider — a free [Groq](https://console.groq.com/keys) key works, as does
+[OpenRouter](https://openrouter.ai/keys).
 
 ```bash
 # 1. Install
@@ -76,7 +79,7 @@ npm install
 
 # 2. Configure
 cp .env.example .env.local
-#    then edit .env.local and set OPENROUTER_API_KEY
+#    then set LLM_PROVIDER and LLM_API_KEY (see the provider table below)
 
 # 3. Run
 npm run dev
@@ -94,13 +97,65 @@ the browser bundle.
 
 | Variable | Required | Default | Purpose |
 | --- | --- | --- | --- |
-| `OPENROUTER_API_KEY` | **yes** | — | Authenticates requests to OpenRouter. |
-| `OPENROUTER_MODEL` | no | `openai/gpt-4o-mini` | Any OpenRouter chat model. |
-| `OPENROUTER_SITE_URL` | no | `http://localhost:3000` | Sent as the `HTTP-Referer` header. |
-| `OPENROUTER_SITE_NAME` | no | `Master Prompt Builder` | Sent as the `X-Title` header. |
-| `OPENROUTER_BASE_URL` | no | `https://openrouter.ai/api/v1` | Override for a proxy or gateway. |
+| `LLM_PROVIDER` | no | `openrouter` | Which provider to call. See the table below. |
+| `LLM_API_KEY` | **yes**\* | — | The key for the selected provider. |
+| `LLM_MODEL` | no\*\* | per provider | Overrides the provider's default model. |
+| `LLM_BASE_URL` | no | per provider | Point at a gateway, a proxy or any compatible server. |
+| `LLM_SITE_URL` | no | — | Attribution header, sent only to providers that use it. |
+| `LLM_SITE_NAME` | no | — | Attribution header, sent only to providers that use it. |
+| `LLM_MAX_TOKENS_FIELD` | no | `max_completion_tokens` | Set to `max_tokens` for older self-hosted servers. |
+| `LLM_TEMPERATURE` | no | `0.7` | Set it empty to omit the field, which some reasoning models require. |
+
+\* Not needed for `ollama` or `custom`, which may run without credentials.
+\*\* Required for every provider except OpenRouter and Groq, which ship a default.
+
+Provider-specific key names also work, so you can reuse what you already export:
+`GROQ_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` / `GOOGLE_API_KEY`,
+`MISTRAL_API_KEY`, `DEEPSEEK_API_KEY`, `XAI_API_KEY`. A key is only ever read for the provider that
+was selected, so an OpenRouter key cannot be sent to Groq by accident.
 
 Changing `.env.local` while `npm run dev` is running reloads the variables automatically.
+
+---
+
+## Providers
+
+Every preset below exposes an OpenAI-compatible endpoint, so the request shape never changes.
+
+| `LLM_PROVIDER` | Base URL | Default model | Get a key |
+| --- | --- | --- | --- |
+| `openrouter` | `https://openrouter.ai/api/v1` | `openai/gpt-4o-mini` | [openrouter.ai/keys](https://openrouter.ai/keys) |
+| `groq` | `https://api.groq.com/openai/v1` | `openai/gpt-oss-120b` | [console.groq.com/keys](https://console.groq.com/keys) |
+| `openai` | `https://api.openai.com/v1` | `gpt-4o-mini` | [platform.openai.com](https://platform.openai.com/api-keys) |
+| `anthropic` | `https://api.anthropic.com/v1` | — (set `LLM_MODEL`) | [console.anthropic.com](https://console.anthropic.com/settings/keys) |
+| `google` | `https://generativelanguage.googleapis.com/v1beta/openai` | — (set `LLM_MODEL`) | [aistudio.google.com](https://aistudio.google.com/app/apikey) |
+| `mistral` | `https://api.mistral.ai/v1` | — (set `LLM_MODEL`) | [console.mistral.ai](https://console.mistral.ai/api-keys) |
+| `deepseek` | `https://api.deepseek.com/v1` | — (set `LLM_MODEL`) | [platform.deepseek.com](https://platform.deepseek.com/api_keys) |
+| `xai` | `https://api.x.ai/v1` | — (set `LLM_MODEL`) | [console.x.ai](https://console.x.ai) |
+| `ollama` | `http://localhost:11434/v1` | — (set `LLM_MODEL`) | none needed — runs locally |
+| `custom` | `LLM_BASE_URL` | — (set `LLM_MODEL`) | whatever your gateway uses |
+
+Switching to Groq, in full:
+
+```bash
+LLM_PROVIDER=groq
+LLM_API_KEY=gsk_...
+# openai/gpt-oss-120b is used unless LLM_MODEL says otherwise
+```
+
+Anything not in the table works too — point `LLM_BASE_URL` at it:
+
+```bash
+LLM_PROVIDER=custom        # or any name you like
+LLM_BASE_URL=https://your-gateway.example/v1
+LLM_MODEL=your-model-id
+# LLM_API_KEY is optional here: leave it out for keyless local servers
+```
+
+Two notes on model choice. OpenRouter and Groq both report `max_tokens` as deprecated in favour of
+`max_completion_tokens`, which is what this app sends; older self-hosted servers that only accept
+`max_tokens` are covered by `LLM_MAX_TOKENS_FIELD=max_tokens`. And some reasoning models reject a
+`temperature` field outright — set `LLM_TEMPERATURE=` to omit it.
 
 ---
 
@@ -108,7 +163,7 @@ Changing `.env.local` while `npm run dev` is running reloads the variables autom
 
 ```
 app/
-  api/generate/route.ts   POST endpoint: validate → rate limit → OpenRouter → normalise
+  api/generate/route.ts   POST endpoint: validate → rate limit → provider call → normalise
   error.tsx               Route-level error boundary
   fonts/                  Self-hosted Inter (subset, OFL) — no font CDN at build or run time
   globals.css             Design tokens, base styles, reduced-motion rules
@@ -145,9 +200,11 @@ components/
     Modal.tsx             Accessible dialog (focus trap, Escape, scroll lock)
     Toast.tsx             Toast provider and cards
 lib/
+  llm.ts                  One OpenAI-compatible client: request, timeout, error mapping
   library.ts              Pure SavedPrompt transforms
   libraryFile.ts          JSON export / import / merge
   metaPrompt.ts           The system prompt sent to the model
+  providers.ts            Provider presets and environment resolution
   rateLimit.ts            In-memory per-IP limiter
   storage.ts              Safe typed localStorage access
   types.ts                Shared domain and API types
@@ -159,17 +216,17 @@ lib/
 
 ## How generation works
 
-1. The browser posts the form fields to `/api/generate` (never to OpenRouter directly).
+1. The browser posts the form fields to `/api/generate` (never to the provider directly).
 2. The route rate-limits the caller, validates and sanitises the body, then builds a system prompt
    plus a user message from the brief.
-3. OpenRouter is called with a 45-second timeout, `max_tokens: 2400` and the recommended
-   `HTTP-Referer` / `X-Title` headers.
+3. The configured provider is called with a 45-second timeout and a 2400-token ceiling. OpenRouter
+   additionally receives the recommended `HTTP-Referer` / `X-Title` attribution headers.
 4. The reply is checked for a sane length, unwrapped from any stray code fence, and returned as
    `{ prompt, model }`.
 
 Errors are JSON with correct status codes: `400` (bad body or invalid fields, with per-field
 messages), `405` (wrong method), `413` (body over 32 KB), `429` (rate limited, with `Retry-After`),
-`500` (missing API key), `502`/`503`/`504` (upstream failures). Every response is sent with
+`500` (missing API key, or unusable provider configuration), `502`/`503`/`504` (upstream failures). Every response is sent with
 `Cache-Control: no-store` so a generated prompt is never cached.
 
 ### Security notes
@@ -222,11 +279,11 @@ bare array of prompts and skips duplicate ids.
 2. In Vercel choose **Add New → Project** and import the repository. The framework preset is
    detected as Next.js; leave the build command and output directory at their defaults.
 3. Before the first deploy, open **Settings → Environment Variables** and add:
-   - `OPENROUTER_API_KEY` — your key, marked as **Sensitive**, for Production, Preview and
-     Development.
-   - `OPENROUTER_MODEL` — optional, for example `openai/gpt-4o-mini`.
-   - `OPENROUTER_SITE_URL` — your deployed URL, for example `https://your-app.vercel.app`.
-   - `OPENROUTER_SITE_NAME` — the label you want shown on OpenRouter dashboards.
+   - `LLM_PROVIDER` — optional; defaults to `openrouter`. Set `groq`, `openai`, `google`, …
+   - `LLM_API_KEY` — your key, marked as **Sensitive**, for Production, Preview and Development.
+     Provider-specific names such as `GROQ_API_KEY` work too.
+   - `LLM_MODEL` — optional where the provider ships a default.
+   - `LLM_SITE_URL` — your deployed URL, for example `https://your-app.vercel.app`.
 4. Deploy. The route runs on the Node.js runtime with `maxDuration = 60`, which fits Vercel's
    limits on Hobby and Pro plans.
 5. Smoke-test the deployed API:
@@ -263,10 +320,13 @@ Notes for production:
 
 | Symptom | Fix |
 | --- | --- |
-| `Server is missing OPENROUTER_API_KEY` | Add the key to `.env.local` and restart, or set it in your host's environment. |
-| `OpenRouter rejected the API key` | Check the key at openrouter.ai/keys; make sure there is no trailing whitespace. |
+| `No API key for <provider>` | Set `LLM_API_KEY` (or the provider's own variable) and restart, or add it in your host's dashboard. |
+| `<provider> rejected the API key` | Check the key, and make sure `LLM_PROVIDER` matches the provider the key belongs to. |
+| `Unknown provider "…"` | A typo in `LLM_PROVIDER`. Use a name from the provider table, or set `LLM_BASE_URL` for a custom one. |
+| `No model selected for <provider>` | Set `LLM_MODEL` — only OpenRouter and Groq ship a default. |
+| `<provider> rejected the request (HTTP 400)` | The model may not accept `temperature` or the token field. Try `LLM_TEMPERATURE=` or `LLM_MAX_TOKENS_FIELD=max_tokens`. |
 | `Too many requests` | The 10-per-minute limit per IP. Wait for the `Retry-After` window. |
-| `OpenRouter took too long to respond` | Try a faster model via `OPENROUTER_MODEL`. |
+| `<provider> took too long to respond` | Try a faster model via `LLM_MODEL`. |
 | `The model returned an unusably short prompt` | The model ignored the brief; switch models. |
 | Prompts vanish after refresh | Local storage is blocked (private window or site settings). The library view says so explicitly. |
 

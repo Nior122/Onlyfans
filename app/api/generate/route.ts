@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requestMasterPrompt } from "@/lib/openrouter";
+import { requestMasterPrompt } from "@/lib/llm";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 import { parseGeneratorInput } from "@/lib/validation";
 import type { GenerateErrorCode, GenerateErrorResponse } from "@/lib/types";
@@ -35,7 +35,7 @@ function jsonError(
 /**
  * POST /api/generate
  *
- * Pipeline: rate limit → size guard → validate → OpenRouter → respond.
+ * Pipeline: rate limit → size guard → validate → provider call → respond.
  * The API key never leaves this process: the browser only ever talks to this
  * route, and every failure is returned as JSON with a matching status code.
  */

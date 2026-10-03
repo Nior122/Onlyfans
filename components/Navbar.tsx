@@ -46,7 +46,7 @@ export function Navbar({ view, onViewChange }: NavbarProps) {
         <span className="flex shrink-0 items-center gap-2">
           <span
             aria-hidden="true"
-            className="grid size-7 place-items-center rounded-control bg-accent-solid text-label font-medium text-accent-fg"
+            className="grid size-7 place-items-center rounded-control bg-accent-solid text-body font-semibold text-accent-fg"
           >
             M
           </span>

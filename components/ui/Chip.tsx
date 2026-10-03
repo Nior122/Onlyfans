@@ -14,7 +14,7 @@ export function Chip({
       type={type}
       aria-pressed={selected}
       className={cn(
-        "inline-flex h-7 select-none items-center rounded-full border px-3 text-label font-medium",
+        "inline-flex h-7 select-none items-center rounded-full border px-3 text-label",
         "transition-colors duration-150",
         "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent",
         "disabled:pointer-events-none disabled:opacity-50",

@@ -26,7 +26,7 @@ export function FieldShell({
   return (
     <div className="w-full">
       <div className="mb-2 flex items-baseline justify-between gap-2">
-        <label htmlFor={id} className="text-label font-medium text-fg-secondary">
+        <label htmlFor={id} className="text-label text-fg-secondary">
           {label}
           {required ? (
             <>

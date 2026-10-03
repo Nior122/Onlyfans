@@ -2,6 +2,7 @@
 
 import { useCallback, useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { STORAGE_KEYS } from "@/lib/utils";
 
 type Theme = "light" | "dark";
@@ -77,18 +78,14 @@ export function ThemeToggle() {
   }, []);
 
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      size="icon"
       onClick={toggle}
-      className="btn-secondary !px-2.5"
       aria-label={`Switch to ${next} theme`}
       title={`Switch to ${next} theme`}
     >
-      {theme === "dark" ? (
-        <Sun className="h-4 w-4" aria-hidden="true" />
-      ) : (
-        <Moon className="h-4 w-4" aria-hidden="true" />
-      )}
-    </button>
+      {theme === "dark" ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
+    </Button>
   );
 }

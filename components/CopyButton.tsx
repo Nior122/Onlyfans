@@ -2,21 +2,39 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Check, Copy } from "lucide-react";
-import { cn, copyToClipboard } from "@/lib/utils";
+import { Button, type ButtonSize, type ButtonVariant } from "@/components/ui/Button";
+import { useToast } from "@/components/ui/Toast";
+import { copyToClipboard } from "@/lib/utils";
 
 type CopyButtonProps = {
   text: string;
+  /** Accessible name, e.g. "Copy" or "Copy prompt". */
   label?: string;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  /** Shows a toast on success. Off by default to keep repeated copies quiet. */
+  notify?: boolean;
   className?: string;
-  disabled?: boolean;
 };
 
 const FEEDBACK_MS = 2000;
 
-/** Copies `text` and shows "Copied" for two seconds, with an SR announcement. */
-export function CopyButton({ text, label = "Copy", className, disabled }: CopyButtonProps) {
+/**
+ * Icon-only copy button. Feedback is the icon swapping to a check in the
+ * success colour for two seconds, announced through a live region; the icon
+ * never shifts the row width because both glyphs are the same size.
+ */
+export function CopyButton({
+  text,
+  label = "Copy",
+  variant = "secondary",
+  size = "icon",
+  notify = false,
+  className,
+}: CopyButtonProps) {
   const [result, setResult] = useState<"idle" | "copied" | "failed">("idle");
   const timer = useRef<number | null>(null);
+  const { toast } = useToast();
 
   useEffect(
     () => () => {
@@ -28,30 +46,30 @@ export function CopyButton({ text, label = "Copy", className, disabled }: CopyBu
   async function handleCopy() {
     const ok = await copyToClipboard(text);
     setResult(ok ? "copied" : "failed");
+    if (ok && notify) toast("Copied to clipboard.");
     if (timer.current !== null) window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setResult("idle"), FEEDBACK_MS);
   }
 
+  const copied = result === "copied";
+
   return (
-    <button
-      type="button"
+    <Button
+      variant={variant}
+      size={size}
       onClick={handleCopy}
-      disabled={disabled}
-      className={cn("btn-secondary", className)}
+      aria-label={copied ? "Copied" : result === "failed" ? "Copy failed" : label}
+      title={copied ? "Copied" : label}
+      className={className}
     >
-      {result === "copied" ? (
-        <Check className="h-4 w-4 text-brand" aria-hidden="true" />
+      {copied ? (
+        <Check className="text-success" aria-hidden="true" />
       ) : (
-        <Copy className="h-4 w-4" aria-hidden="true" />
+        <Copy aria-hidden="true" />
       )}
-      {result === "copied" ? "Copied" : result === "failed" ? "Copy failed" : label}
       <span className="sr-only" role="status">
-        {result === "copied"
-          ? "Copied to clipboard"
-          : result === "failed"
-            ? "Copy failed. Select the text and copy manually."
-            : ""}
+        {copied ? "Copied to clipboard" : result === "failed" ? "Copy failed" : ""}
       </span>
-    </button>
+    </Button>
   );
 }

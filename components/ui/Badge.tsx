@@ -63,7 +63,7 @@ export function Badge({
     <span
       className={cn(
         "inline-flex h-6 items-center gap-2 rounded-full border border-border bg-subtle px-2",
-        "text-label font-medium text-fg-secondary",
+        "text-label text-fg-secondary",
         className,
       )}
     >

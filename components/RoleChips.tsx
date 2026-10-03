@@ -1,7 +1,7 @@
 "use client";
 
+import { Chip } from "@/components/ui/Chip";
 import { ROLE_SUGGESTIONS } from "@/lib/types";
-import { cn } from "@/lib/utils";
 
 type RoleChipsProps = {
   value: string;
@@ -13,26 +13,16 @@ export function RoleChips({ value, onChange }: RoleChipsProps) {
   const current = value.trim().toLowerCase();
 
   return (
-    <div className="flex flex-wrap gap-1.5" role="group" aria-label="Suggested roles">
-      {ROLE_SUGGESTIONS.map((role) => {
-        const active = current === role.toLowerCase();
-        return (
-          <button
-            key={role}
-            type="button"
-            aria-pressed={active}
-            onClick={() => onChange(role)}
-            className={cn(
-              "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-              active
-                ? "border-brand bg-brand-soft text-brand"
-                : "border-line bg-surface text-muted hover:border-brand/50 hover:text-fg",
-            )}
-          >
-            {role}
-          </button>
-        );
-      })}
+    <div className="flex flex-wrap gap-2" role="group" aria-label="Suggested roles">
+      {ROLE_SUGGESTIONS.map((role) => (
+        <Chip
+          key={role}
+          selected={current === role.toLowerCase()}
+          onClick={() => onChange(role)}
+        >
+          {role}
+        </Chip>
+      ))}
     </div>
   );
 }

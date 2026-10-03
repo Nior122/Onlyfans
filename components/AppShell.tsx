@@ -40,38 +40,28 @@ export function AppShell() {
 
             <main
               id="main"
-              className="mx-auto w-full max-w-6xl flex-1 px-4 pb-20 pt-8 sm:px-6 sm:pt-12"
+              className="mx-auto w-full max-w-container flex-1 px-6 py-8 sm:px-8 sm:py-12"
             >
-              <section className="mb-8 max-w-3xl">
-                <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                  Turn a rough idea into a reusable master prompt.
-                </h1>
-                <p className="mt-2 text-sm text-muted sm:text-base">
-                  Describe your goal, pick a role and an output type — you get back a structured,
-                  role-based prompt with clear steps, rules and a quality checklist. Save it, reuse
-                  it, or copy it into any AI tool.
+              <section className="mb-8">
+                <h1 className="text-title font-semibold">Turn a goal into a master prompt</h1>
+                <p className="mt-2 max-w-prose text-body text-fg-secondary">
+                  Describe what you need, pick a role and an output type. You get a structured,
+                  role-based prompt with steps, rules and a quality checklist — ready to save or
+                  paste into any AI tool.
                 </p>
               </section>
 
-              <ViewPanel
-                id="builder"
-                active={view === "builder"}
-                panelRef={builderRef}
-              >
+              <ViewPanel id="builder" active={view === "builder"} panelRef={builderRef}>
                 <BuilderView />
               </ViewPanel>
 
-              <ViewPanel
-                id="library"
-                active={view === "library"}
-                panelRef={libraryRef}
-              >
+              <ViewPanel id="library" active={view === "library"} panelRef={libraryRef}>
                 <LibraryView />
               </ViewPanel>
             </main>
 
-            <footer className="border-t border-line">
-              <div className="mx-auto flex w-full max-w-6xl flex-col gap-1 px-4 py-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <footer className="border-t border-border">
+              <div className="mx-auto flex w-full max-w-container flex-col gap-1 px-6 py-6 text-label text-fg-muted sm:flex-row sm:items-center sm:justify-between sm:px-8">
                 <p>Master Prompt Builder — a portfolio project.</p>
                 <p>Your prompts are stored in this browser only.</p>
               </div>
@@ -107,8 +97,8 @@ function ViewPanel({ id, active, panelRef, children }: ViewPanelProps) {
     >
       <motion.div
         initial={false}
-        animate={{ opacity: active ? 1 : 0, y: active ? 0 : 6 }}
-        transition={{ duration: 0.18, ease: "easeOut" }}
+        animate={{ opacity: active ? 1 : 0, y: active ? 0 : 4 }}
+        transition={{ duration: 0.15, ease: "easeOut" }}
       >
         {children}
       </motion.div>

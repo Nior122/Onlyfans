@@ -2,17 +2,10 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import {
-  AlertTriangle,
-  BookmarkPlus,
-  Check,
-  FileText,
-  Loader2,
-  Pencil,
-  RefreshCw,
-  X,
-} from "lucide-react";
+import { AlertTriangle, BookmarkPlus, Check, FileText, Pencil, RefreshCw, X } from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
+import { Button } from "@/components/ui/Button";
+import { Card, Skeleton } from "@/components/ui/Card";
 import type { GenerationState } from "@/lib/types";
 import { countSections, countWords } from "@/lib/utils";
 
@@ -26,6 +19,10 @@ type ResultPanelProps = {
   onSave?: (promptText: string) => void;
 };
 
+/**
+ * The generated prompt: header row with the title and actions, then the prompt
+ * body scrolling inside the card. States: empty, loading, error, success.
+ */
 export function ResultPanel({ state, onRegenerate, onSave }: ResultPanelProps) {
   /**
    * One draft record, tagged with the prompt it belongs to. Because the shown
@@ -45,22 +42,73 @@ export function ResultPanel({ state, onRegenerate, onSave }: ResultPanelProps) {
   const sections = countSections(displayText);
 
   return (
-    <section
-      aria-labelledby="result-heading"
-      aria-busy={state.status === "loading"}
-      className="card flex min-h-[24rem] flex-col p-5 sm:p-6"
-    >
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="result-heading" className="text-sm font-semibold">
-          Your master prompt
-        </h2>
+    <Card padding="none" className="flex min-h-[24rem] flex-col">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border p-4 sm:p-5">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h2 className="text-body font-semibold">Generated prompt</h2>
+          {state.status === "success" ? (
+            <p className="text-label text-fg-muted">
+              {sections} of {REQUIRED_SECTIONS} sections
+              <span aria-hidden="true"> · </span>
+              {words} words
+            </p>
+          ) : null}
+        </div>
 
         {state.status === "success" ? (
-          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-            <span className="tabular-nums">{sections} of {REQUIRED_SECTIONS} sections</span>
-            <span className="tabular-nums">{words} words</span>
-            <span className="hidden truncate sm:inline">{state.model}</span>
-          </p>
+          <div className="flex items-center gap-2">
+            {isEditing ? (
+              <>
+                {/* Keeps the edits and leaves edit mode, so Copy uses the edited text. */}
+                <Button
+                  onClick={() =>
+                    setDraft((previous) => (previous ? { ...previous, editing: false } : previous))
+                  }
+                >
+                  <Check aria-hidden="true" />
+                  Done
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => setDraft({ source: generatedText, text: null, editing: false })}
+                >
+                  <X aria-hidden="true" />
+                  Discard
+                </Button>
+              </>
+            ) : (
+              <>
+                <CopyButton text={displayText} label="Copy prompt" />
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  onClick={() => setDraft({ source: generatedText, text: displayText, editing: true })}
+                  aria-label="Edit prompt"
+                  title="Edit"
+                >
+                  <Pencil aria-hidden="true" />
+                </Button>
+                {onRegenerate ? (
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    onClick={onRegenerate}
+                    aria-label="Regenerate prompt"
+                    title="Regenerate"
+                  >
+                    <RefreshCw aria-hidden="true" />
+                  </Button>
+                ) : null}
+                {onSave ? (
+                  <Button onClick={() => onSave(displayText)}>
+                    <BookmarkPlus aria-hidden="true" />
+                    <span className="hidden sm:inline">Save to library</span>
+                    <span className="sm:hidden">Save</span>
+                  </Button>
+                ) : null}
+              </>
+            )}
+          </div>
         ) : null}
       </div>
 
@@ -75,52 +123,42 @@ export function ResultPanel({ state, onRegenerate, onSave }: ResultPanelProps) {
               : ""}
       </p>
 
-      <div className="mt-4 flex-1">
+      <div className="flex-1 p-4 sm:p-5" aria-busy={state.status === "loading"}>
         {/* Keyed by status so each state fades in as it replaces the last. */}
         <motion.div
           key={state.status}
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
+          className="h-full"
         >
           {state.status === "idle" ? (
-            <div className="grid h-full place-items-center gap-2 rounded-xl border border-dashed border-line px-6 py-12 text-center">
-              <FileText className="h-6 w-6 text-muted" aria-hidden="true" />
-              <p className="text-sm font-medium">Nothing generated yet</p>
-              <p className="max-w-sm text-sm text-muted">
-                Fill in your goal, role and output type, then hit Generate. Your structured prompt
-                appears here.
-              </p>
-            </div>
+            <p className="flex items-start gap-2 text-body text-fg-muted">
+              <FileText className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+              Fill in your goal, role and output type, then generate — your prompt appears here.
+            </p>
           ) : null}
 
           {state.status === "loading" ? (
             <div className="space-y-3" aria-hidden="true">
-              {[90, 100, 75, 95, 60].map((width, index) => (
-                <div
-                  key={index}
-                  className="h-4 animate-pulse rounded bg-subtle"
-                  style={{ width: `${width}%` }}
-                />
+              {[88, 96, 72, 92, 64, 80].map((width) => (
+                <Skeleton key={width} className="h-4" style={{ width: `${width}%` }} />
               ))}
-              <p className="flex items-center gap-2 pt-2 text-sm text-muted">
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                Writing your master prompt…
-              </p>
+              <p className="pt-2 text-label text-fg-muted">Writing your master prompt…</p>
             </div>
           ) : null}
 
           {state.status === "error" ? (
-            <div className="rounded-xl border border-danger/40 bg-danger/5 p-4">
-              <p className="flex items-start gap-2 text-sm font-medium text-danger">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+            <div className="rounded-card border border-error/40 p-4">
+              <p className="flex items-start gap-2 text-body">
+                <AlertTriangle className="mt-0.5 size-4 shrink-0 text-error" aria-hidden="true" />
                 {state.message}
               </p>
               {onRegenerate ? (
-                <button type="button" onClick={onRegenerate} className="btn-secondary mt-3">
-                  <RefreshCw className="h-4 w-4" aria-hidden="true" />
+                <Button variant="secondary" onClick={onRegenerate} className="mt-4">
+                  <RefreshCw aria-hidden="true" />
                   Try again
-                </button>
+                </Button>
               ) : null}
             </div>
           ) : null}
@@ -134,85 +172,29 @@ export function ResultPanel({ state, onRegenerate, onSave }: ResultPanelProps) {
                     setDraft({ source: generatedText, text: event.target.value, editing: true })
                   }
                   aria-label="Edit the generated prompt"
-                  className="input min-h-[22rem] resize-y font-mono text-xs leading-relaxed"
+                  className="min-h-[24rem] w-full resize-y rounded-control border border-border bg-bg px-3 py-3 text-body leading-prompt text-fg transition-colors duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40"
                 />
               ) : (
                 <pre
                   tabIndex={0}
                   role="region"
                   aria-label="Generated master prompt"
-                  className="max-h-[32rem] overflow-auto whitespace-pre-wrap break-words rounded-xl border border-line bg-subtle/50 p-4 font-sans text-sm leading-relaxed"
+                  className="max-h-[32rem] max-w-prose overflow-auto whitespace-pre-wrap break-words text-body leading-prompt"
                 >
                   {displayText}
                 </pre>
               )}
 
               {sections < REQUIRED_SECTIONS ? (
-                <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
-                  The model returned {sections} of the {REQUIRED_SECTIONS} sections. Try Regenerate
-                  for the full structure, or edit the text before saving.
+                <p className="text-label text-fg-muted">
+                  The model returned {sections} of the {REQUIRED_SECTIONS} sections. Regenerate for
+                  the full structure, or edit before saving.
                 </p>
               ) : null}
-
-              <div className="flex flex-wrap items-center gap-2">
-                {isEditing ? (
-                  <>
-                    {/* Keeps the edits and leaves edit mode, so Copy uses the edited text. */}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setDraft((previous) => (previous ? { ...previous, editing: false } : previous))
-                      }
-                      className="btn-primary"
-                    >
-                      <Check className="h-4 w-4" aria-hidden="true" />
-                      Done editing
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDraft({ source: generatedText, text: null, editing: false })}
-                      className="btn-secondary"
-                    >
-                      <X className="h-4 w-4" aria-hidden="true" />
-                      Discard changes
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <CopyButton text={displayText} label="Copy" />
-                    {onSave ? (
-                      <button
-                        type="button"
-                        onClick={() => onSave(displayText)}
-                        className="btn-secondary"
-                      >
-                        <BookmarkPlus className="h-4 w-4" aria-hidden="true" />
-                        Save to library
-                      </button>
-                    ) : null}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setDraft({ source: generatedText, text: displayText, editing: true })
-                      }
-                      className="btn-secondary"
-                    >
-                      <Pencil className="h-4 w-4" aria-hidden="true" />
-                      Edit
-                    </button>
-                    {onRegenerate ? (
-                      <button type="button" onClick={onRegenerate} className="btn-secondary">
-                        <RefreshCw className="h-4 w-4" aria-hidden="true" />
-                        Regenerate
-                      </button>
-                    ) : null}
-                  </>
-                )}
-              </div>
             </div>
           ) : null}
         </motion.div>
       </div>
-    </section>
+    </Card>
   );
 }

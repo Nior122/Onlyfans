@@ -29,6 +29,12 @@ export function Card({
 }
 
 /** Loading placeholder. The pulse is disabled under prefers-reduced-motion. */
-export function Skeleton({ className }: { className?: string }) {
-  return <span className={cn("block animate-pulse rounded-control bg-subtle", className)} />;
+export function Skeleton({
+  className,
+  style,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  return <span style={style} className={cn("block animate-pulse rounded-control bg-subtle", className)} />;
 }

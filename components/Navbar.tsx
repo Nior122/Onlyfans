@@ -1,16 +1,16 @@
 "use client";
 
 import { useRef } from "react";
-import { Bookmark, Sparkles, Wand2 } from "lucide-react";
+import { motion } from "framer-motion";
 import { useLibrary } from "@/components/LibraryProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { cn } from "@/lib/utils";
 
 export type AppView = "builder" | "library";
 
-const TABS: Array<{ id: AppView; label: string; icon: typeof Wand2 }> = [
-  { id: "builder", label: "Builder", icon: Wand2 },
-  { id: "library", label: "Library", icon: Bookmark },
+const TABS: Array<{ id: AppView; label: string }> = [
+  { id: "builder", label: "Builder" },
+  { id: "library", label: "Library" },
 ];
 
 type NavbarProps = {
@@ -18,6 +18,10 @@ type NavbarProps = {
   onViewChange: (view: AppView) => void;
 };
 
+/**
+ * Slim 56px bar: mark and app name, tabs with an accent underline for the
+ * active view, theme toggle on the right. Bottom border only, no shadow.
+ */
 export function Navbar({ view, onViewChange }: NavbarProps) {
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const { prompts, ready } = useLibrary();
@@ -36,67 +40,64 @@ export function Navbar({ view, onViewChange }: NavbarProps) {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-bg/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
-        <div className="flex min-w-0 items-center gap-2.5">
+    <header className="sticky top-0 z-40 border-b border-border bg-bg">
+      <div className="mx-auto flex h-14 w-full max-w-container items-center gap-6 px-6 sm:px-8">
+        <span className="flex shrink-0 items-center gap-2">
           <span
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand text-brand-fg"
             aria-hidden="true"
+            className="grid size-6 place-items-center rounded-control bg-accent-solid text-label text-accent-fg"
           >
-            <Sparkles className="h-5 w-5" />
+            M
           </span>
-          {/* Hidden below sm so the tabs and theme toggle always fit at 360px. */}
-          <span className="hidden truncate text-sm font-semibold sm:inline sm:text-base">
-            Master Prompt Builder
-          </span>
-        </div>
+          <span className="hidden text-body font-semibold sm:inline">Master Prompt Builder</span>
+        </span>
 
-        <div className="flex items-center gap-2">
-          <div
-            role="tablist"
-            aria-label="Switch between the builder and your library"
-            className="flex items-center gap-1 rounded-xl border border-line bg-surface p-1"
-          >
-            {TABS.map((tab, index) => {
-              const Icon = tab.icon;
-              const selected = view === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  ref={(node) => {
-                    tabRefs.current[index] = node;
-                  }}
-                  type="button"
-                  role="tab"
-                  id={`tab-${tab.id}`}
-                  aria-selected={selected}
-                  aria-controls={`panel-${tab.id}`}
-                  tabIndex={selected ? 0 : -1}
-                  onClick={() => onViewChange(tab.id)}
-                  onKeyDown={(event) => onKeyDown(event, index)}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors sm:px-3",
-                    selected ? "bg-brand text-brand-fg" : "text-muted hover:bg-subtle hover:text-fg",
-                  )}
-                >
-                  <Icon className="h-4 w-4" aria-hidden="true" />
-                  <span>{tab.label}</span>
-                  {tab.id === "library" && savedCount > 0 ? (
-                    <span
-                      className={cn(
-                        "rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums",
-                        selected ? "bg-brand-fg/25" : "bg-subtle",
-                      )}
-                    >
-                      {savedCount}
-                      <span className="sr-only"> saved prompts</span>
-                    </span>
-                  ) : null}
-                </button>
-              );
-            })}
-          </div>
+        <nav
+          role="tablist"
+          aria-label="Switch between the builder and your library"
+          className="flex h-14 items-stretch gap-6"
+        >
+          {TABS.map((tab, index) => {
+            const selected = view === tab.id;
+            return (
+              <button
+                key={tab.id}
+                ref={(node) => {
+                  tabRefs.current[index] = node;
+                }}
+                type="button"
+                role="tab"
+                id={`tab-${tab.id}`}
+                aria-selected={selected}
+                aria-controls={`panel-${tab.id}`}
+                tabIndex={selected ? 0 : -1}
+                onClick={() => onViewChange(tab.id)}
+                onKeyDown={(event) => onKeyDown(event, index)}
+                className={cn(
+                  "relative flex items-center gap-2 text-body transition-colors duration-150",
+                  selected ? "text-fg" : "text-fg-secondary hover:text-fg",
+                )}
+              >
+                {tab.label}
+                {tab.id === "library" && savedCount > 0 ? (
+                  <span className="text-label text-fg-muted">
+                    {savedCount}
+                    <span className="sr-only"> saved prompts</span>
+                  </span>
+                ) : null}
+                {selected ? (
+                  <motion.span
+                    layoutId="nav-underline"
+                    className="absolute inset-x-0 -bottom-px h-0.5 bg-accent"
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                  />
+                ) : null}
+              </button>
+            );
+          })}
+        </nav>
 
+        <div className="ml-auto flex items-center">
           <ThemeToggle />
         </div>
       </div>

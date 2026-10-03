@@ -17,7 +17,7 @@ export type ButtonSize = "md" | "lg" | "icon";
 
 const BASE =
   "inline-flex shrink-0 select-none items-center justify-center gap-2 rounded-control " +
-  "font-medium transition-colors duration-150 [&_svg]:size-4 " +
+  "transition-colors duration-150 [&_svg]:size-4 " +
   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent " +
   "disabled:pointer-events-none disabled:opacity-50";
 

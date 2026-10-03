@@ -9,15 +9,24 @@ export type TextareaProps = Omit<React.TextareaHTMLAttributes<HTMLTextAreaElemen
   label: string;
   hint?: string;
   error?: string;
+  /** Keeps the label for screen readers without showing it (editor panels). */
+  labelHidden?: boolean;
 };
 
 /** Multi-line field: 12px padding all round, minimum height 120px. */
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
-  { id, label, hint, error, required, className, rows = 5, ...props },
+  { id, label, hint, error, required, labelHidden, className, rows = 5, ...props },
   ref,
 ) {
   return (
-    <FieldShell id={id} label={label} hint={hint} error={error} required={required}>
+    <FieldShell
+      id={id}
+      label={label}
+      hint={hint}
+      error={error}
+      required={required}
+      labelHidden={labelHidden}
+    >
       <textarea
         ref={ref}
         id={id}

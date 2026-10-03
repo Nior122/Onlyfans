@@ -95,7 +95,7 @@ export function GeneratorForm({ isGenerating, onGenerate, externalErrors }: Gene
   }
 
   return (
-    <Card padding="md" className="sm:p-6">
+    <Card padding="md">
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <Textarea
           id="goal"

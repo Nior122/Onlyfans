@@ -69,14 +69,9 @@ export function LibraryView({ onNavigateToBuilder }: LibraryViewProps) {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-section font-semibold">Library</h2>
-          {ready && prompts.length > 0 ? (
-            <p className="mt-1 text-label text-fg-muted">
-              {prompts.length} saved prompt{prompts.length === 1 ? "" : "s"}
-            </p>
-          ) : null}
-        </div>
+        {/* The count lives in the toolbar's status line, beside the filters it
+            describes, so it is not repeated here. */}
+        <h2 className="text-section font-semibold">Library</h2>
 
         <LibraryActions
           importing={importing}
@@ -103,60 +98,64 @@ export function LibraryView({ onNavigateToBuilder }: LibraryViewProps) {
         </p>
       ) : null}
 
-      <LibraryToolbar
-        query={query}
-        onQueryChange={setQuery}
-        category={category}
-        onCategoryChange={setCategory}
-        sort={sort}
-        onSortChange={setSort}
-        onManageCategories={() => setManagingCategories(true)}
-        shownCount={filtered.length}
-      />
+      {/* The toolbar belongs to the grid it filters: 16px to the grid, and 24px
+          up to the header row from the panel's own rhythm. */}
+      <div className="space-y-4">
+        <LibraryToolbar
+          query={query}
+          onQueryChange={setQuery}
+          category={category}
+          onCategoryChange={setCategory}
+          sort={sort}
+          onSortChange={setSort}
+          onManageCategories={() => setManagingCategories(true)}
+          shownCount={filtered.length}
+        />
 
-      {!ready ? (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-hidden="true">
-          {[0, 1, 2].map((index) => (
-            <Skeleton key={index} className="h-44 rounded-card" />
-          ))}
-        </div>
-      ) : prompts.length === 0 ? (
-        <EmptyState
-          title="No saved prompts yet"
-          body="Generate a master prompt in the builder, then choose Save to library to keep it here."
-        >
-          <Button onClick={onNavigateToBuilder}>Go to the builder</Button>
-        </EmptyState>
-      ) : filtered.length === 0 ? (
-        <EmptyState
-          title="No prompts match your filters"
-          body="Try a different search term or category."
-        >
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setQuery("");
-              setCategory("all");
-            }}
+        {!ready ? (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-hidden="true">
+            {[0, 1, 2].map((index) => (
+              <Skeleton key={index} className="h-44 rounded-card" />
+            ))}
+          </div>
+        ) : prompts.length === 0 ? (
+          <EmptyState
+            title="No saved prompts yet"
+            body="Generate a master prompt in the builder, then choose Save to library to keep it here."
           >
-            <X aria-hidden="true" />
-            Clear filters
-          </Button>
-        </EmptyState>
-      ) : (
-        <ul className="grid list-none gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((prompt) => (
-            <li key={prompt.id}>
-              <PromptCard
-                prompt={prompt}
-                onView={() => setViewing(prompt)}
-                onEdit={() => setEditing(prompt)}
-                onDelete={() => setDeleting(prompt)}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
+            <Button onClick={onNavigateToBuilder}>Go to the builder</Button>
+          </EmptyState>
+        ) : filtered.length === 0 ? (
+          <EmptyState
+            title="No prompts match your filters"
+            body="Try a different search term or category."
+          >
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setQuery("");
+                setCategory("all");
+              }}
+            >
+              <X aria-hidden="true" />
+              Clear filters
+            </Button>
+          </EmptyState>
+        ) : (
+          <ul className="grid list-none gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {filtered.map((prompt) => (
+              <li key={prompt.id}>
+                <PromptCard
+                  prompt={prompt}
+                  onView={() => setViewing(prompt)}
+                  onEdit={() => setEditing(prompt)}
+                  onDelete={() => setDeleting(prompt)}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       <PromptViewDialog prompt={viewing} onClose={() => setViewing(null)} />
 

@@ -6,6 +6,7 @@ import { AlertTriangle, BookmarkPlus, Check, FileText, Pencil, RefreshCw, X } fr
 import { CopyButton } from "@/components/CopyButton";
 import { Button } from "@/components/ui/Button";
 import { Card, Skeleton } from "@/components/ui/Card";
+import { Textarea } from "@/components/ui/Textarea";
 import type { GenerationState } from "@/lib/types";
 import { countSections, countWords } from "@/lib/utils";
 
@@ -43,8 +44,8 @@ export function ResultPanel({ state, onRegenerate, onSave }: ResultPanelProps) {
 
   return (
     <Card padding="none" className="flex min-h-[24rem] flex-col">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border p-4 sm:p-5">
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-border p-4 sm:p-5">
+        <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
           <h2 className="text-body font-semibold">Generated prompt</h2>
           {state.status === "success" ? (
             <p className="text-label text-fg-muted">
@@ -56,7 +57,7 @@ export function ResultPanel({ state, onRegenerate, onSave }: ResultPanelProps) {
         </div>
 
         {state.status === "success" ? (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {isEditing ? (
               <>
                 {/* Keeps the edits and leaves edit mode, so Copy uses the edited text. */}
@@ -166,13 +167,16 @@ export function ResultPanel({ state, onRegenerate, onSave }: ResultPanelProps) {
           {state.status === "success" ? (
             <div className="space-y-4">
               {isEditing ? (
-                <textarea
+                <Textarea
+                  id="prompt-draft"
+                  label="Edit the generated prompt"
+                  labelHidden
+                  rows={14}
                   value={displayText}
                   onChange={(event) =>
                     setDraft({ source: generatedText, text: event.target.value, editing: true })
                   }
-                  aria-label="Edit the generated prompt"
-                  className="min-h-[24rem] w-full resize-y rounded-control border border-border bg-bg px-3 py-3 text-body leading-prompt text-fg transition-colors duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40"
+                  className="min-h-[24rem] leading-prompt"
                 />
               ) : (
                 <pre

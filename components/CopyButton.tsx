@@ -14,6 +14,8 @@ type CopyButtonProps = {
   size?: ButtonSize;
   /** Shows a toast on success. Off by default to keep repeated copies quiet. */
   notify?: boolean;
+  /** Adds a visible "Copy" label next to the icon, for dialogs and footers. */
+  showLabel?: boolean;
   className?: string;
 };
 
@@ -30,6 +32,7 @@ export function CopyButton({
   variant = "secondary",
   size = "icon",
   notify = false,
+  showLabel = false,
   className,
 }: CopyButtonProps) {
   const [result, setResult] = useState<"idle" | "copied" | "failed">("idle");
@@ -67,6 +70,9 @@ export function CopyButton({
       ) : (
         <Copy aria-hidden="true" />
       )}
+      {/* The word never changes, so the button keeps its width while the icon
+          and the live region carry the "copied" feedback. */}
+      {showLabel ? <span aria-hidden="true">Copy</span> : null}
       <span className="sr-only" role="status">
         {copied ? "Copied to clipboard" : result === "failed" ? "Copy failed" : ""}
       </span>

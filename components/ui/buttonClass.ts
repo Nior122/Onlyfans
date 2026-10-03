@@ -16,8 +16,8 @@ const BASE =
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary: "bg-accent-solid text-accent-fg hover:bg-accent-solid-hover active:bg-accent-solid-hover",
-  secondary: "border border-border bg-transparent text-fg hover:border-border-strong hover:bg-subtle",
-  ghost: "text-fg-secondary hover:bg-subtle hover:text-fg",
+  secondary: "border border-border bg-transparent text-fg hover:border-border-strong hover:bg-hover",
+  ghost: "text-fg-secondary hover:bg-hover hover:text-fg",
 };
 
 const SIZES: Record<ButtonSize, string> = {

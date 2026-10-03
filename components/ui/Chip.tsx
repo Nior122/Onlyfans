@@ -20,7 +20,7 @@ export function Chip({
         "disabled:pointer-events-none disabled:opacity-50",
         selected
           ? "border-accent bg-accent-subtle text-accent-text"
-          : "border-border text-fg-secondary hover:bg-subtle hover:text-fg",
+          : "border-border text-fg-secondary hover:bg-hover hover:text-fg",
         className,
       )}
       {...props}

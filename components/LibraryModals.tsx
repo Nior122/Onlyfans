@@ -36,7 +36,7 @@ export function PromptViewDialog({ prompt, onClose }: PromptViewDialogProps) {
               variant="secondary"
               size="md"
               notify
-              className="[&_svg]:size-4"
+              showLabel
             />
           </>
         ) : null

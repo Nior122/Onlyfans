@@ -22,13 +22,14 @@
     --subtle: 244 244 245; /* #F4F4F5 */
     --border: 228 228 231; /* #E4E4E7 */
     --border-strong: 212 212 216; /* #D4D4D8 — card hover only */
+    --hover: 244 244 245; /* #F4F4F5 — hover fill, same as subtle in light */
     --overlay: 24 24 27; /* #18181B — modal scrim base */
 
     /* Text — 17.7:1, 7.7:1, 4.8:1 on #FFFFFF */
     --fg: 24 24 27; /* #18181B */
     --fg-secondary: 82 82 91; /* #52525B */
     --fg-muted: 107 107 116; /* #6B6B74 — clears 4.5:1 on all three surfaces */
-    --fg-placeholder: 161 161 170; /* #A1A1AA — non-text role only */
+    --fg-placeholder: 107 107 116; /* #6B6B74 — spec #A1A1AA is 2.6:1, fails AA text */
 
     /* One accent hue, three applications, because a single value cannot
        satisfy both roles: edges need 3:1, text needs 4.5:1, and a filled
@@ -67,13 +68,14 @@
     --subtle: 24 24 27; /* #18181B */
     --border: 39 39 42; /* #27272A */
     --border-strong: 63 63 70; /* #3F3F46 — card hover only */
+    --hover: 42 42 46; /* #2A2A2E — hover fill; #18181B is invisible on #09090B */
     --overlay: 0 0 0;
 
     /* Text — 19.1:1, 7.4:1, 5.5:1 on #111113 */
     --fg: 250 250 250; /* #FAFAFA */
     --fg-secondary: 161 161 170; /* #A1A1AA */
     --fg-muted: 138 138 148; /* #8A8A94 — spec said #71717A (3.9:1, fails AA) */
-    --fg-placeholder: 113 113 122; /* #71717A — non-text role only */
+    --fg-placeholder: 138 138 148; /* #8A8A94 — spec #71717A is 4.1:1, fails AA on #111113 */
 
     --accent: 99 102 241; /* #6366F1 — borders, rings, active underline (4.2:1 edge) */
     --accent-text: 129 140 248; /* #818CF8 — links and accent text (6.3:1) */

@@ -20,6 +20,7 @@ const config: Config = {
         subtle: "rgb(var(--subtle) / <alpha-value>)",
         border: "rgb(var(--border) / <alpha-value>)",
         "border-strong": "rgb(var(--border-strong) / <alpha-value>)",
+        hover: "rgb(var(--hover) / <alpha-value>)",
         overlay: "rgb(var(--overlay) / <alpha-value>)",
 
         /* Text */

@@ -41,7 +41,7 @@ export function Navbar({ view, onViewChange }: NavbarProps) {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-bg">
-      <div className="mx-auto flex h-14 w-full max-w-container items-center gap-6 px-6 sm:px-8">
+      <div className="mx-auto flex h-14 w-full max-w-container items-center gap-4 px-6 sm:gap-6 sm:px-8">
         <span className="flex shrink-0 items-center gap-2">
           <span
             aria-hidden="true"

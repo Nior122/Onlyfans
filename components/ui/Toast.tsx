@@ -111,7 +111,7 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void
         )}
         aria-hidden="true"
       />
-      <p className="flex-1 text-body">{item.message}</p>
+      <p className="min-w-0 flex-1 break-words text-body">{item.message}</p>
       <Button
         variant="ghost"
         size="icon"

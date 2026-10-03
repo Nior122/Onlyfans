@@ -63,26 +63,34 @@ export function LibraryToolbar({
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
-          <Select
-            id="library-category"
-            label="Filter by category"
-            labelHidden
-            width="auto"
-            options={categoryOptions}
-            value={category}
-            onChange={(event) => onCategoryChange(event.target.value)}
-          />
+        <div className="flex items-center gap-2 sm:ml-auto">
+          {/* Each select shares the row on mobile and shrinks rather than
+              pushing the row wider than the screen. */}
+          <div className="min-w-0 flex-1 sm:flex-none">
+            <Select
+              id="library-category"
+              label="Filter by category"
+              labelHidden
+              width="auto"
+              className="max-w-full"
+              options={categoryOptions}
+              value={category}
+              onChange={(event) => onCategoryChange(event.target.value)}
+            />
+          </div>
 
-          <Select
-            id="library-sort"
-            label="Sort prompts"
-            labelHidden
-            width="auto"
-            options={SORT_OPTIONS}
-            value={sort}
-            onChange={(event) => onSortChange(event.target.value as SortOrder)}
-          />
+          <div className="min-w-0 flex-1 sm:flex-none">
+            <Select
+              id="library-sort"
+              label="Sort prompts"
+              labelHidden
+              width="auto"
+              className="max-w-full"
+              options={SORT_OPTIONS}
+              value={sort}
+              onChange={(event) => onSortChange(event.target.value as SortOrder)}
+            />
+          </div>
 
           <Button
             variant="ghost"

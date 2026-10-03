@@ -80,7 +80,7 @@ export function FieldShell({
 export const controlClass =
   "rounded-control border border-border bg-bg px-3 text-body text-fg " +
   "transition-colors duration-150 placeholder:text-fg-placeholder hover:border-border-strong " +
-  "focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40 " +
+  "focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent " +
   "disabled:cursor-not-allowed disabled:opacity-60 aria-[invalid=true]:border-error";
 
 export function fieldDescribedBy(id: string, hint?: string, error?: string): string | undefined {

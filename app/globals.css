@@ -1,0 +1,138 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Design tokens.
+ *
+ * Every colour in the app resolves to one of these variables. Values are
+ * stored as space-separated RGB channels so Tailwind can compose them with an
+ * alpha value (for example bg-accent/10).
+ *
+ * Every value that differs from the original spec is marked with the contrast
+ * it scores and the reason it was changed; the same palette is asserted against
+ * the compiled CSS by the token audit.
+ */
+@layer base {
+  :root {
+    color-scheme: light;
+
+    /* Surfaces */
+    --bg: 255 255 255; /* #FFFFFF */
+    --surface: 250 250 250; /* #FAFAFA */
+    --subtle: 244 244 245; /* #F4F4F5 */
+    --border: 228 228 231; /* #E4E4E7 */
+    --border-strong: 212 212 216; /* #D4D4D8 — card hover only */
+    --hover: 244 244 245; /* #F4F4F5 — hover fill, same as subtle in light */
+    --overlay: 24 24 27; /* #18181B — modal scrim base */
+
+    /* Text — 17.7:1, 7.7:1, 4.8:1 on #FFFFFF */
+    --fg: 24 24 27; /* #18181B */
+    --fg-secondary: 82 82 91; /* #52525B */
+    --fg-muted: 110 110 118; /* #6E6E76 — 5.05:1 on white, 4.84:1 on surface, 4.60:1 on subtle */
+    --fg-placeholder: 110 110 118; /* #6E6E76 — placeholder text is text: AA applies */
+
+    /* One accent hue, three applications, because a single value cannot
+       satisfy both roles: edges need 3:1, text needs 4.5:1, and a filled
+       button needs its white label to stay readable. */
+    --accent: 79 70 229; /* #4F46E5 — borders, rings, active underline */
+    --accent-text: 79 70 229; /* #4F46E5 — links and accent text (6.3:1) */
+    --accent-solid: 79 70 229; /* #4F46E5 — filled buttons */
+    --accent-solid-hover: 67 56 202; /* #4338CA */
+    --accent-fg: 255 255 255;
+    --accent-subtle: 238 242 255; /* #EEF2FF — selected chips */
+
+    /* Status — text-safe shades */
+    --success: 21 128 61; /* #15803D — 5.0:1 on white */
+    --error: 220 38 38; /* #DC2626 — 4.8:1 on white */
+    --error-solid: 220 38 38; /* #DC2626 — destructive fill */
+    --error-solid-fg: 255 255 255; /* white label: 4.8:1 */
+
+    /* Category dots. Decorative only (the label carries the meaning), so one
+       mid-tone per hue works on both themes instead of two sets. */
+    --dot-indigo: 99 102 241;
+    --dot-emerald: 16 185 129;
+    --dot-amber: 245 158 11;
+    --dot-rose: 244 63 94;
+    --dot-sky: 14 165 200;
+    --dot-violet: 139 92 246;
+
+    /* The only shadow in the system, for floating elements (modals, toasts). */
+    --shadow-overlay: 0 12px 32px -8px rgb(24 24 27 / 0.16), 0 2px 8px -2px rgb(24 24 27 / 0.08);
+  }
+
+  .dark {
+    color-scheme: dark;
+
+    --bg: 9 9 11; /* #09090B */
+    --surface: 17 17 19; /* #111113 */
+    --subtle: 24 24 27; /* #18181B */
+    --border: 39 39 42; /* #27272A */
+    --border-strong: 63 63 70; /* #3F3F46 — card hover only */
+    --hover: 42 42 46; /* #2A2A2E — hover fill; #18181B is invisible on #09090B */
+    --overlay: 0 0 0;
+
+    /* Text — 19.1:1, 7.4:1, 5.5:1 on #111113 */
+    --fg: 250 250 250; /* #FAFAFA */
+    --fg-secondary: 161 161 170; /* #A1A1AA */
+    --fg-muted: 138 138 148; /* #8A8A94 — spec said #71717A (3.9:1, fails AA) */
+    --fg-placeholder: 138 138 148; /* #8A8A94 — spec #71717A is 4.1:1, fails AA on #111113 */
+
+    --accent: 99 102 241; /* #6366F1 — borders, rings, active underline (4.2:1 edge) */
+    --accent-text: 129 140 248; /* #818CF8 — links and accent text (6.3:1) */
+    --accent-solid: 79 70 229; /* #4F46E5 — white label stays at 6.3:1 */
+    --accent-solid-hover: 67 56 202; /* #4338CA */
+    --accent-fg: 255 255 255;
+    --accent-subtle: 35 32 74; /* #23204A — selected chips */
+
+    --success: 22 163 74; /* #16A34A — 5.7:1 on #111113 */
+    --error: 248 113 113; /* #F87171 — 6.8:1 on #111113 */
+    --error-solid: 248 113 113; /* #F87171 — destructive fill */
+    --error-solid-fg: 9 9 11; /* near-black label: 7.1:1 */
+
+    --shadow-overlay: 0 12px 32px -8px rgb(0 0 0 / 0.6), 0 2px 8px -2px rgb(0 0 0 / 0.4);
+  }
+
+  html {
+    /* 16px root: every rem in the design system resolves against this. */
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-bg text-body text-fg antialiased;
+  }
+
+  /* Focus: 2px accent ring, no offset, no default outline. */
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 0;
+  }
+
+  ::selection {
+    background-color: rgb(var(--accent) / 0.2);
+  }
+
+  /* lucide-react renders every icon with this class, so weight is set once. */
+  .lucide {
+    stroke-width: 1.75;
+  }
+}
+
+/*
+ * Visitors who ask for reduced motion keep the loading indicator (it is the
+ * only signal that work is in progress) but lose decorative animation.
+ * Framer Motion animations are handled by MotionConfig reducedMotion="user".
+ */
+@media (prefers-reduced-motion: reduce) {
+  /* Skeletons hold still instead of pulsing. */
+  .animate-pulse {
+    animation: none !important;
+  }
+
+  /* .animate-spin is deliberately kept: a frozen spinner reads as "stuck". */
+
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}

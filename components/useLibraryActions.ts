@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import type { useToast } from "@/components/Toast";
+import type { useToast } from "@/components/ui/Toast";
 import { mergeImport } from "@/lib/libraryFile";
 import {
   applyPromptUpdate,

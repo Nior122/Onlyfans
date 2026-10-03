@@ -1,7 +1,7 @@
 "use client";
 
 import { CopyButton } from "@/components/CopyButton";
-import { Modal } from "@/components/Modal";
+import { Modal } from "@/components/ui/Modal";
 import type { SavedPrompt } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 

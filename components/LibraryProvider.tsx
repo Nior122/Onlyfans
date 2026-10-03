@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useMemo, useSyncExternalStore } from "react";
-import { useToast } from "@/components/Toast";
+import { useToast } from "@/components/ui/Toast";
 import { useLibraryActions, type ImportResult } from "@/components/useLibraryActions";
 import { categoriesStore, isStorageAvailable, promptsStore } from "@/lib/storage";
 import type { NewPromptValues, SavedPrompt } from "@/lib/types";

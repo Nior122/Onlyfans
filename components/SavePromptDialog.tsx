@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { SelectField, TextField } from "@/components/FormField";
 import { useLibrary } from "@/components/LibraryProvider";
-import { Modal } from "@/components/Modal";
+import { Modal } from "@/components/ui/Modal";
 import { OUTPUT_TYPES, type NewPromptValues, type OutputType } from "@/lib/types";
 import { FIELD_LIMITS } from "@/lib/validation";
 import { cn } from "@/lib/utils";

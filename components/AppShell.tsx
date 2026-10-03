@@ -6,7 +6,7 @@ import { Navbar, type AppView } from "@/components/Navbar";
 import { BuilderView } from "@/components/BuilderView";
 import { LibraryProvider } from "@/components/LibraryProvider";
 import { LibraryView } from "@/components/LibraryView";
-import { ToastProvider } from "@/components/Toast";
+import { ToastProvider } from "@/components/ui/Toast";
 
 /**
  * Client shell that owns the active view. `app/page.tsx` stays a server

@@ -2,7 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertTriangle, CheckCircle2, Info, X } from "lucide-react";
+import { AlertTriangle, Check, Info, X } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { cn, uid } from "@/lib/utils";
 
 type ToastVariant = "success" | "error" | "info";
@@ -28,6 +29,11 @@ const VISIBLE_MS: Record<ToastVariant, number> = {
 
 const MAX_VISIBLE = 4;
 
+/**
+ * Bottom-right notifications: small, bordered, with the system's soft shadow,
+ * auto-dismissed. Errors interrupt (role="alert"); everything else waits in the
+ * polite live region.
+ */
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<ToastItem[]>([]);
   const timers = useRef(new Map<string, number>());
@@ -68,7 +74,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       <div
-        className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex flex-col items-center gap-2 p-4 sm:items-end"
+        className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex flex-col items-stretch gap-2 p-4 sm:items-end"
         aria-live="polite"
         aria-atomic="false"
       >
@@ -83,42 +89,38 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 }
 
 function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void }) {
-  const Icon =
-    item.variant === "success" ? CheckCircle2 : item.variant === "error" ? AlertTriangle : Info;
+  const Icon = item.variant === "success" ? Check : item.variant === "error" ? AlertTriangle : Info;
 
   return (
     <motion.div
-      // Errors interrupt; everything else waits its turn in the live region.
       role={item.variant === "error" ? "alert" : "status"}
-      initial={{ opacity: 0, y: 8, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 6, scale: 0.98 }}
-      transition={{ duration: 0.18, ease: "easeOut" }}
-      className={cn(
-        "pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border bg-surface p-3 shadow-pop",
-        item.variant === "error" ? "border-danger/40" : "border-line",
-      )}
+      initial={{ opacity: 0, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 4 }}
+      transition={{ duration: 0.15, ease: "easeOut" }}
+      className="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-card border border-border bg-surface p-3 shadow-overlay"
     >
       <Icon
         className={cn(
-          "mt-0.5 h-4 w-4 shrink-0",
+          "mt-1 size-4 shrink-0",
           item.variant === "error"
-            ? "text-danger"
+            ? "text-error"
             : item.variant === "success"
-              ? "text-brand"
-              : "text-muted",
+              ? "text-success"
+              : "text-fg-muted",
         )}
         aria-hidden="true"
       />
-      <p className="flex-1 text-sm">{item.message}</p>
-      <button
-        type="button"
+      <p className="flex-1 text-body">{item.message}</p>
+      <Button
+        variant="ghost"
+        size="icon"
         onClick={onDismiss}
-        className="rounded-md p-1 text-muted transition-colors hover:bg-subtle hover:text-fg"
         aria-label="Dismiss notification"
+        className="-mr-1 -mt-1"
       >
-        <X className="h-3.5 w-3.5" aria-hidden="true" />
-      </button>
+        <X aria-hidden="true" />
+      </Button>
     </motion.div>
   );
 }

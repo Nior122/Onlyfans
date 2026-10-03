@@ -19,6 +19,8 @@ const config: Config = {
         surface: "rgb(var(--surface) / <alpha-value>)",
         subtle: "rgb(var(--subtle) / <alpha-value>)",
         border: "rgb(var(--border) / <alpha-value>)",
+        "border-strong": "rgb(var(--border-strong) / <alpha-value>)",
+        overlay: "rgb(var(--overlay) / <alpha-value>)",
 
         /* Text */
         fg: {
@@ -37,6 +39,14 @@ const config: Config = {
           fg: "rgb(var(--accent-fg) / <alpha-value>)",
           subtle: "rgb(var(--accent-subtle) / <alpha-value>)",
         },
+
+        /* Category dots — the only non-accent colour in the UI */
+        "dot-indigo": "rgb(var(--dot-indigo) / <alpha-value>)",
+        "dot-emerald": "rgb(var(--dot-emerald) / <alpha-value>)",
+        "dot-amber": "rgb(var(--dot-amber) / <alpha-value>)",
+        "dot-rose": "rgb(var(--dot-rose) / <alpha-value>)",
+        "dot-sky": "rgb(var(--dot-sky) / <alpha-value>)",
+        "dot-violet": "rgb(var(--dot-violet) / <alpha-value>)",
 
         /* Status, used sparingly */
         success: "rgb(var(--success) / <alpha-value>)",

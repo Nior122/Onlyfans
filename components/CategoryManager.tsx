@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { useLibrary } from "@/components/LibraryProvider";
-import { Modal } from "@/components/Modal";
+import { Modal } from "@/components/ui/Modal";
 import { countInCategory } from "@/lib/library";
 import { DEFAULT_CATEGORIES } from "@/lib/types";
 

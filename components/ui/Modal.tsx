@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 type ModalProps = {
@@ -18,16 +19,16 @@ type ModalProps = {
 const SIZES: Record<NonNullable<ModalProps["size"]>, string> = {
   sm: "sm:max-w-md",
   md: "sm:max-w-lg",
-  lg: "sm:max-w-3xl",
+  lg: "sm:max-w-2xl",
 };
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /**
- * Accessible dialog: labelled, modal, closes on Escape or backdrop click,
- * moves focus inside on open, traps Tab, and restores focus on close.
- * AnimatePresence keeps it mounted briefly so the exit transition can play.
+ * Floating surface: the only place (with toasts) that uses the system shadow.
+ * Labelled, modal, closes on Escape or backdrop click, moves focus inside on
+ * open, traps Tab, and restores focus on close.
  */
 export function Modal({
   open,
@@ -100,7 +101,7 @@ export function Modal({
     <AnimatePresence>
       {open ? (
         <motion.div
-          className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-0 backdrop-blur-sm sm:p-4"
+          className="fixed inset-0 z-50 overflow-y-auto bg-overlay/45 p-0 dark:bg-overlay/70 sm:p-6"
           onMouseDown={onBackdropMouseDown}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -115,40 +116,41 @@ export function Modal({
               aria-labelledby={titleId}
               aria-describedby={description ? descriptionId : undefined}
               tabIndex={-1}
-              initial={{ opacity: 0, y: 12, scale: 0.99 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 8, scale: 0.99 }}
-              transition={{ duration: 0.18, ease: "easeOut" }}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 4 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
               className={cn(
-                "w-full rounded-t-2xl border border-line bg-surface shadow-pop sm:rounded-2xl",
+                "w-full rounded-t-card border border-border bg-surface shadow-overlay sm:rounded-card",
                 SIZES[size],
               )}
             >
-              <div className="flex items-start justify-between gap-4 border-b border-line p-4 sm:p-5">
-                <div>
-                  <h2 id={titleId} className="text-base font-semibold">
+              <div className="flex items-start justify-between gap-4 border-b border-border p-4 sm:p-5">
+                <div className="min-w-0">
+                  <h2 id={titleId} className="text-section font-semibold">
                     {title}
                   </h2>
                   {description ? (
-                    <p id={descriptionId} className="mt-1 text-sm text-muted">
+                    <p id={descriptionId} className="mt-1 text-body text-fg-secondary">
                       {description}
                     </p>
                   ) : null}
                 </div>
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => onCloseRef.current()}
-                  className="rounded-lg p-1.5 text-muted transition-colors hover:bg-subtle hover:text-fg"
                   aria-label="Close dialog"
+                  className="-mr-1 -mt-1"
                 >
-                  <X className="h-4 w-4" aria-hidden="true" />
-                </button>
+                  <X aria-hidden="true" />
+                </Button>
               </div>
 
               <div className="max-h-[70vh] overflow-y-auto p-4 sm:p-5">{children}</div>
 
               {footer ? (
-                <div className="flex flex-wrap items-center justify-end gap-2 border-t border-line p-4 sm:p-5">
+                <div className="flex flex-wrap items-center justify-end gap-2 border-t border-border p-4 sm:p-5">
                   {footer}
                 </div>
               ) : null}

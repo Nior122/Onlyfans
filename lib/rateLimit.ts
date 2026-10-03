@@ -9,8 +9,8 @@
  * instances under load.
  */
 
-export const RATE_LIMIT_MAX_REQUESTS = 10;
-export const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 10;
+const RATE_LIMIT_WINDOW_MS = 60_000;
 
 /** Stops the map growing without bound on a long-lived server. */
 const MAX_TRACKED_CALLERS = 5_000;
@@ -19,7 +19,7 @@ type Window = { count: number; resetAt: number };
 
 const windows = new Map<string, Window>();
 
-export type RateLimitResult = {
+type RateLimitResult = {
   allowed: boolean;
   /** Seconds until the window resets — used for Retry-After. */
   retryAfterSeconds: number;
@@ -80,9 +80,4 @@ export function checkRateLimit(key: string): RateLimitResult {
     limit: RATE_LIMIT_MAX_REQUESTS,
     remaining: RATE_LIMIT_MAX_REQUESTS - existing.count,
   };
-}
-
-/** Test helper: clears all counters. */
-export function resetRateLimit(): void {
-  windows.clear();
 }

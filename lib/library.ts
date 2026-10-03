@@ -9,7 +9,7 @@ import { uid } from "@/lib/utils";
  */
 
 export const MAX_TITLE_LENGTH = 120;
-export const MAX_CATEGORY_LENGTH = 40;
+const MAX_CATEGORY_LENGTH = 40;
 
 /** Trims and caps a title, falling back to a placeholder rather than empty. */
 function cleanTitle(title: string): string {
@@ -72,6 +72,16 @@ export function reassignCategory(
   to = "Other",
 ): SavedPrompt[] {
   return prompts.map((prompt) => (prompt.category === from ? { ...prompt, category: to } : prompt));
+}
+
+/**
+ * Normalises a category name against the existing list: "writing" becomes
+ * "Writing" when that category already exists. Without this, a prompt saved
+ * with different casing would not match the category filter.
+ */
+export function resolveCategory(categories: string[], name: string): string {
+  const trimmed = name.trim().slice(0, MAX_CATEGORY_LENGTH) || "Other";
+  return categories.find((category) => category.toLowerCase() === trimmed.toLowerCase()) ?? trimmed;
 }
 
 export function categoryExists(categories: string[], name: string): boolean {

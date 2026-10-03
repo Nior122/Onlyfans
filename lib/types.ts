@@ -66,7 +66,7 @@ export type SavedPrompt = {
 /* ------------------------------- API contract ------------------------------ */
 
 /** Successful /api/generate response. */
-export type GenerateSuccessResponse = {
+type GenerateSuccessResponse = {
   prompt: string;
   model: string;
 };
@@ -74,6 +74,7 @@ export type GenerateSuccessResponse = {
 export type GenerateErrorCode =
   | "METHOD_NOT_ALLOWED"
   | "INVALID_JSON"
+  | "PAYLOAD_TOO_LARGE"
   | "VALIDATION_ERROR"
   | "RATE_LIMITED"
   | "MISSING_API_KEY"

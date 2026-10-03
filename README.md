@@ -158,13 +158,16 @@ lib/
    `{ prompt, model }`.
 
 Errors are JSON with correct status codes: `400` (bad body or invalid fields, with per-field
-messages), `405` (wrong method), `429` (rate limited, with `Retry-After`), `500` (missing API key),
-`502`/`503`/`504` (upstream failures).
+messages), `405` (wrong method), `413` (body over 32 KB), `429` (rate limited, with `Retry-After`),
+`500` (missing API key), `502`/`503`/`504` (upstream failures). Every response is sent with
+`Cache-Control: no-store` so a generated prompt is never cached.
 
 ### Security notes
 
 - The API key lives only in `.env.local` and is read inside the route handler.
-- Every field is length-capped and control characters are stripped.
+- Every field is length-capped and control characters are stripped; bodies over 32 KB are
+  rejected before they are parsed.
+- Imports are capped at 5 MB and validated record by record.
 - Brief text is wrapped in `<brief>` tags and explicitly framed as data, so a prompt inside the
   goal cannot hijack the task.
 - The rate limiter is in-memory and per process: 10 requests per minute per IP. It is a

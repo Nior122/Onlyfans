@@ -15,7 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 
 /** Form-shaped values: the output type is empty until the user picks one. */
-export type FormValues = Omit<GeneratorInput, "outputType"> & { outputType: OutputType | "" };
+type FormValues = Omit<GeneratorInput, "outputType"> & { outputType: OutputType | "" };
 
 const EMPTY_VALUES: FormValues = {
   goal: "",
@@ -85,7 +85,8 @@ export function GeneratorForm({ isGenerating, onGenerate, externalErrors }: Gene
   function reset() {
     setValues(EMPTY_VALUES);
     setErrors({});
-    setClearedExternal({});
+    // `clearedExternal` is intentionally kept: emptying the form should not
+    // bring back server-side field errors the user already dismissed.
   }
 
   return (

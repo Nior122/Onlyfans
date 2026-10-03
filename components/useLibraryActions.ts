@@ -8,6 +8,7 @@ import {
   categoryExists,
   createSavedPrompt,
   reassignCategory,
+  resolveCategory,
   removePrompt,
   withAddedCategory,
   withRemovedCategory,
@@ -19,7 +20,10 @@ import { downloadJson } from "@/lib/utils";
 
 export type ImportResult = { added: number; skipped: number } | null;
 
-export type LibraryActions = {
+/** Guard rail: a library export should never be anywhere near this large. */
+const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
+
+type LibraryActions = {
   savePrompt: (values: NewPromptValues) => SavedPrompt | null;
   updatePrompt: (id: string, patch: Partial<NewPromptValues>) => void;
   deletePrompt: (id: string) => void;
@@ -44,7 +48,10 @@ export function useLibraryActions(
 ): LibraryActions {
   const savePrompt = useCallback(
     (values: NewPromptValues): SavedPrompt | null => {
-      const prompt = createSavedPrompt(values);
+      const prompt = createSavedPrompt({
+        ...values,
+        category: resolveCategory(categories, values.category),
+      });
 
       if (!promptsStore.write([prompt, ...prompts])) {
         toast("Could not save: this browser blocked local storage.", "error");
@@ -63,7 +70,10 @@ export function useLibraryActions(
 
   const updatePrompt = useCallback(
     (id: string, patch: Partial<NewPromptValues>) => {
-      if (!promptsStore.write(applyPromptUpdate(prompts, id, patch))) {
+      const resolvedPatch = patch.category
+        ? { ...patch, category: resolveCategory(categories, patch.category) }
+        : patch;
+      if (!promptsStore.write(applyPromptUpdate(prompts, id, resolvedPatch))) {
         toast("Could not update: this browser blocked local storage.", "error");
         return;
       }
@@ -138,6 +148,11 @@ export function useLibraryActions(
 
   const importLibrary = useCallback(
     async (file: File): Promise<ImportResult> => {
+      if (file.size > MAX_IMPORT_BYTES) {
+        toast("That file is too large to be a prompt library export.", "error");
+        return null;
+      }
+
       let raw: unknown;
       try {
         raw = JSON.parse(await file.text()) as unknown;

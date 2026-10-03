@@ -113,6 +113,9 @@ export function LibraryToolbar({
             type="file"
             accept="application/json,.json"
             className="sr-only"
+            // The visible Import button opens the picker, so this stays out of
+            // the tab order rather than trapping focus on an invisible control.
+            tabIndex={-1}
             aria-label="Import a prompt library JSON file"
             onChange={(event) => void handleFile(event.target.files?.[0])}
           />

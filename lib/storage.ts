@@ -16,7 +16,7 @@ import { STORAGE_KEYS } from "@/lib/utils";
  */
 
 /** Stable empty references: returning a fresh array each read would loop React. */
-export const EMPTY_PROMPTS: SavedPrompt[] = [];
+const EMPTY_PROMPTS: SavedPrompt[] = [];
 
 /**
  * Stable copy of the default categories. Used as the fallback so an empty

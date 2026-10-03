@@ -1,4 +1,4 @@
-import { OUTPUT_TYPES, type GeneratorInput, type OutputType } from "@/lib/types";
+import type { GeneratorInput, OutputType } from "@/lib/types";
 
 /**
  * System prompt for the generation call. Its only job is to turn a short brief
@@ -96,6 +96,3 @@ Extra guidance for this output type: ${OUTPUT_TYPE_HINTS[input.outputType]}
 
 Write the master prompt for this brief now, following the required seven-section structure exactly. Return only the prompt itself.`;
 }
-
-/** Exposed for the API route's validation test and for documentation. */
-export const SUPPORTED_OUTPUT_TYPES = OUTPUT_TYPES;

@@ -24,6 +24,8 @@ export function BuilderView() {
   const [state, setState] = useState<GenerationState>({ status: "idle" });
   const [lastInput, setLastInput] = useState<GeneratorInput | null>(null);
   const [pendingSave, setPendingSave] = useState<string | null>(null);
+  /** Increments per save request so the dialog remounts with fresh initial values. */
+  const [saveRequestId, setSaveRequestId] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
   const { savePrompt } = useLibrary();
 
@@ -86,14 +88,17 @@ export function BuilderView() {
         <ResultPanel
           state={state}
           onRegenerate={lastInput ? regenerate : undefined}
-          onSave={setPendingSave}
+          onSave={(promptText) => {
+            setPendingSave(promptText);
+            setSaveRequestId((id) => id + 1);
+          }}
         />
       </div>
 
       {/* Keyed so the dialog re-initialises with the current prompt each time. */}
       {pendingSave !== null ? (
         <SavePromptDialog
-          key={pendingSave.slice(0, 32)}
+          key={saveRequestId}
           open
           mode="create"
           initial={{

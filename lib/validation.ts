@@ -13,18 +13,8 @@ export const FIELD_LIMITS = {
 } as const;
 
 export const GOAL_MIN_LENGTH = 10;
-export const ROLE_MIN_LENGTH = 2;
 
-/** Human labels for the fields, reused by error messages and the form. */
-export const FIELD_LABELS: Record<keyof typeof FIELD_LIMITS, string> = {
-  goal: "Goal",
-  role: "Role",
-  outputType: "Output type",
-  tone: "Tone",
-  audience: "Target audience",
-  length: "Desired length",
-  constraints: "Extra constraints",
-};
+const ROLE_MIN_LENGTH = 2;
 
 export type FieldErrors = Record<string, string>;
 
@@ -32,7 +22,7 @@ export type FieldErrors = Record<string, string>;
  * Form-shaped input: identical to GeneratorInput except the output type may
  * still be empty while the user is choosing one.
  */
-export type ValidatableInput = Omit<GeneratorInput, "outputType"> & { outputType: string };
+type ValidatableInput = Omit<GeneratorInput, "outputType"> & { outputType: string };
 
 /** Type guard so callers can narrow a free-form string to OutputType. */
 export function isOutputType(value: string): value is OutputType {
@@ -40,7 +30,7 @@ export function isOutputType(value: string): value is OutputType {
 }
 
 /** Drops control characters (keeping newlines and tabs) and tidies whitespace. */
-export function sanitizeText(value: string): string {
+function sanitizeText(value: string): string {
   return value
     .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
     .replace(/\r\n/g, "\n")
@@ -83,13 +73,9 @@ export function validateGeneratorInput(input: ValidatableInput): FieldErrors {
   return errors;
 }
 
-export type ValidationSuccess = { ok: true; input: GeneratorInput };
-export type ValidationFailure = {
-  ok: false;
-  message: string;
-  fields: FieldErrors;
-};
-export type ValidationResult = ValidationSuccess | ValidationFailure;
+type ValidationResult =
+  | { ok: true; input: GeneratorInput }
+  | { ok: false; message: string; fields: FieldErrors };
 
 /** Reads one field as sanitized text, recording a type error when it is not a string. */
 function readField(

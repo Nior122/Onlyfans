@@ -1,3 +1,4 @@
+import { resolveCategory } from "@/lib/library";
 import { reviveCategories, revivePrompts } from "@/lib/storage";
 import type { SavedPrompt } from "@/lib/types";
 
@@ -9,7 +10,7 @@ import type { SavedPrompt } from "@/lib/types";
 
 const EXPORT_VERSION = 1;
 
-export type LibraryExport = {
+type LibraryExport = {
   version: number;
   exportedAt: string;
   prompts: SavedPrompt[];
@@ -59,14 +60,15 @@ export function mergeImport(
   currentCategories: string[],
   incoming: { prompts: SavedPrompt[]; categories: string[] },
 ): { prompts: SavedPrompt[]; categories: string[]; added: number; skipped: number } {
+  const categories = reviveCategories([...currentCategories, ...incoming.categories]);
+
   const existingIds = new Set(currentPrompts.map((prompt) => prompt.id));
-  const added = incoming.prompts.filter((prompt) => !existingIds.has(prompt.id));
+  // Imported prompts adopt the existing spelling of their category, so they
+  // cannot end up invisible to the category filter.
+  const added = incoming.prompts
+    .filter((prompt) => !existingIds.has(prompt.id))
+    .map((prompt) => ({ ...prompt, category: resolveCategory(categories, prompt.category) }));
   const skipped = incoming.prompts.length - added.length;
 
-  return {
-    prompts: [...added, ...currentPrompts],
-    categories: reviveCategories([...currentCategories, ...incoming.categories]),
-    added: added.length,
-    skipped,
-  };
+  return { prompts: [...added, ...currentPrompts], categories, added: added.length, skipped };
 }

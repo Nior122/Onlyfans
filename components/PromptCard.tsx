@@ -2,6 +2,9 @@
 
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
+import { Badge, categoryHue } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import type { SavedPrompt } from "@/lib/types";
 import { formatDate, stripMarkdown, truncate } from "@/lib/utils";
 
@@ -12,73 +15,77 @@ type PromptCardProps = {
   onDelete: () => void;
 };
 
+/** One saved prompt: title, category, preview, date and icon actions. */
 export function PromptCard({ prompt, onView, onEdit, onDelete }: PromptCardProps) {
   const preview = truncate(stripMarkdown(prompt.promptText), 220);
 
   return (
-    <article className="card flex flex-col p-4 transition-colors hover:border-brand/40">
+    <Card interactive padding="md" className="flex h-full flex-col">
       <div className="flex items-start justify-between gap-3">
-        <h3 className="text-sm font-semibold leading-snug">
-          {/* The whole title opens the full view, which is the primary action. */}
+        <h3 className="min-w-0 flex-1 text-body font-semibold">
+          {/* The title opens the full view, which is the primary action. */}
           <button
             type="button"
             onClick={onView}
-            className="text-left hover:text-brand focus-visible:text-brand"
+            className="block w-full truncate text-left transition-colors duration-150 hover:text-accent-text focus-visible:text-accent-text"
           >
             {prompt.title}
           </button>
         </h3>
-        <span className="badge max-w-[10rem] shrink-0 truncate">{prompt.category}</span>
+        <Badge dot={categoryHue(prompt.category)} className="max-w-[9rem]">
+          <span className="truncate">{prompt.category}</span>
+        </Badge>
       </div>
 
-      <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
-        <span>{prompt.outputType}</span>
+      <p className="mt-2 truncate text-label text-fg-muted">
+        {prompt.outputType}
         {prompt.role ? (
           <>
-            <span aria-hidden="true">·</span>
-            <span className="truncate">{prompt.role}</span>
+            <span aria-hidden="true"> · </span>
+            {prompt.role}
           </>
         ) : null}
       </p>
 
-      <p className="mt-3 line-clamp-3 flex-1 text-sm text-muted">{preview}</p>
+      <p className="mt-3 line-clamp-3 flex-1 text-body text-fg-secondary">{preview}</p>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
-        <time dateTime={prompt.createdAt} className="text-xs text-muted">
+      <div className="mt-4 flex items-center justify-between gap-2 border-t border-border pt-3">
+        <time dateTime={prompt.createdAt} className="text-label text-fg-muted">
           {formatDate(prompt.createdAt)}
         </time>
 
-        <div className="flex flex-wrap items-center gap-1.5">
-          <CopyButton text={prompt.promptText} label="Copy" className="!px-2.5 !py-1.5 text-xs" />
-          <button
-            type="button"
+        <div className="flex items-center gap-1">
+          <CopyButton text={prompt.promptText} label={`Copy ${prompt.title}`} variant="ghost" />
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onView}
-            className="btn-secondary !px-2.5 !py-1.5 text-xs"
-            aria-label={`View ${prompt.title} in full`}
+            aria-label={`View ${prompt.title}`}
+            title="View"
           >
-            <Eye className="h-3.5 w-3.5" aria-hidden="true" />
-            View
-          </button>
-          <button
-            type="button"
+            <Eye aria-hidden="true" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onEdit}
-            className="btn-secondary !px-2.5 !py-1.5 text-xs"
             aria-label={`Edit ${prompt.title}`}
+            title="Edit"
           >
-            <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-            Edit
-          </button>
-          <button
-            type="button"
+            <Pencil aria-hidden="true" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onDelete}
-            className="btn-ghost !px-2.5 !py-1.5 text-xs hover:text-danger"
             aria-label={`Delete ${prompt.title}`}
+            title="Delete"
+            className="hover:text-error"
           >
-            <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-            Delete
-          </button>
+            <Trash2 aria-hidden="true" />
+          </Button>
         </div>
       </div>
-    </article>
+    </Card>
   );
 }

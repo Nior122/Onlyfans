@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Compass } from "lucide-react";
-import { buttonClass } from "@/components/ui/Button";
+import { buttonClass } from "@/components/ui/buttonClass";
 import { Card } from "@/components/ui/Card";
 
 export default function NotFound() {

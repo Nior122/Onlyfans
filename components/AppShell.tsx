@@ -56,7 +56,7 @@ export function AppShell() {
               </ViewPanel>
 
               <ViewPanel id="library" active={view === "library"} panelRef={libraryRef}>
-                <LibraryView />
+                <LibraryView onNavigateToBuilder={() => setView("builder")} />
               </ViewPanel>
             </main>
 

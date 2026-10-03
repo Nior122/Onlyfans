@@ -1,7 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { Download, FolderCog, Search, SlidersHorizontal, Upload } from "lucide-react";
+import { Download, FolderCog, Search, Upload } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
 import { useLibrary } from "@/components/LibraryProvider";
 
 export type SortOrder = "newest" | "oldest";
@@ -14,10 +16,19 @@ type LibraryToolbarProps = {
   sort: SortOrder;
   onSortChange: (value: SortOrder) => void;
   onManageCategories: () => void;
-  /** Counts for the results line, computed by the view from the filtered list. */
   shownCount: number;
 };
 
+const SORT_OPTIONS = [
+  { value: "newest", label: "Newest first" },
+  { value: "oldest", label: "Oldest first" },
+] as const;
+
+/**
+ * Search on the left, filters on the right. Search and both selects use the
+ * shared controls with hidden labels, so this row is styled by the same rules
+ * as the form.
+ */
 export function LibraryToolbar({
   query,
   onQueryChange,
@@ -28,116 +39,87 @@ export function LibraryToolbar({
   onManageCategories,
   shownCount,
 }: LibraryToolbarProps) {
-  const { prompts, categories, ready, exportLibrary, importLibrary } = useLibrary();
-  const [importing, setImporting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  async function handleFile(file: File | undefined) {
-    if (!file) return;
-    setImporting(true);
-    await importLibrary(file);
-    setImporting(false);
-    // Allow re-importing the same filename.
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  }
-
+  const { prompts, categories } = useLibrary();
   const hasFilters = query.trim() !== "" || category !== "all";
 
+  const categoryOptions = [
+    { value: "all", label: "All categories" },
+    ...categories.map((name) => ({ value: name, label: name })),
+  ];
+
   return (
-    <div className="card p-4">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-        <div className="relative min-w-0 flex-1">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
-            aria-hidden="true"
-          />
-          <input
+    <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="sm:max-w-xs sm:flex-1">
+          <Input
             id="library-search"
+            label="Search saved prompts"
             type="search"
+            icon={<Search />}
+            labelHidden
+            placeholder="Search prompts…"
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
-            placeholder="Search titles, goals and prompt text…"
-            aria-label="Search saved prompts"
-            className="input !pl-9"
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <label htmlFor="library-category" className="sr-only">
-            Filter by category
-          </label>
-          <select
+        <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+          <Select
             id="library-category"
+            label="Filter by category"
+            labelHidden
+            width="auto"
+            options={categoryOptions}
             value={category}
             onChange={(event) => onCategoryChange(event.target.value)}
-            className="input !w-auto max-w-full"
-          >
-            <option value="all">All categories</option>
-            {categories.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
-
-          <SlidersHorizontal className="h-4 w-4 text-muted" aria-hidden="true" />
-          <label htmlFor="library-sort" className="sr-only">
-            Sort prompts
-          </label>
-          <select
-            id="library-sort"
-            value={sort}
-            onChange={(event) => onSortChange(event.target.value as SortOrder)}
-            className="input !w-auto max-w-full"
-          >
-            <option value="newest">Newest first</option>
-            <option value="oldest">Oldest first</option>
-          </select>
-
-          <button type="button" onClick={onManageCategories} className="btn-secondary">
-            <FolderCog className="h-4 w-4" aria-hidden="true" />
-            Categories
-          </button>
-
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="btn-secondary"
-            disabled={importing}
-          >
-            <Upload className="h-4 w-4" aria-hidden="true" />
-            {importing ? "Importing…" : "Import"}
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="application/json,.json"
-            className="sr-only"
-            // The visible Import button opens the picker, so this stays out of
-            // the tab order rather than trapping focus on an invisible control.
-            tabIndex={-1}
-            aria-label="Import a prompt library JSON file"
-            onChange={(event) => void handleFile(event.target.files?.[0])}
           />
 
-          <button
-            type="button"
-            onClick={exportLibrary}
-            className="btn-secondary"
-            disabled={prompts.length === 0}
+          <Select
+            id="library-sort"
+            label="Sort prompts"
+            labelHidden
+            width="auto"
+            options={SORT_OPTIONS}
+            value={sort}
+            onChange={(event) => onSortChange(event.target.value as SortOrder)}
+          />
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onManageCategories}
+            aria-label="Manage categories"
+            title="Manage categories"
           >
-            <Download className="h-4 w-4" aria-hidden="true" />
-            Export
-          </button>
+            <FolderCog aria-hidden="true" />
+          </Button>
         </div>
       </div>
 
-      {ready && prompts.length > 0 ? (
-        <p className="mt-3 text-xs text-muted" role="status">
-          Showing {shownCount} of {prompts.length} prompt{prompts.length === 1 ? "" : "s"}
-          {hasFilters ? " (filtered)" : ""}.
+      {prompts.length > 0 ? (
+        <p className="mt-3 text-label text-fg-muted" role="status">
+          {shownCount} of {prompts.length} prompt{prompts.length === 1 ? "" : "s"}
+          {hasFilters ? " match" : ""}
         </p>
       ) : null}
+    </div>
+  );
+}
+
+/** Header-row actions: Export and Import as secondary buttons. */
+export function LibraryActions({ onImport, importing }: { onImport: () => void; importing: boolean }) {
+  const { prompts, exportLibrary } = useLibrary();
+
+  return (
+    <div className="flex items-center gap-2">
+      <Button variant="secondary" onClick={exportLibrary} disabled={prompts.length === 0}>
+        <Download aria-hidden="true" />
+        Export
+      </Button>
+      <Button variant="secondary" onClick={onImport} disabled={importing}>
+        <Upload aria-hidden="true" />
+        {importing ? "Importing…" : "Import"}
+      </Button>
     </div>
   );
 }

@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { SelectField, TextField } from "@/components/FormField";
 import { useLibrary } from "@/components/LibraryProvider";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { Select } from "@/components/ui/Select";
+import { Textarea } from "@/components/ui/Textarea";
 import { OUTPUT_TYPES, type NewPromptValues, type OutputType } from "@/lib/types";
 import { FIELD_LIMITS } from "@/lib/validation";
-import { cn } from "@/lib/utils";
 
 const NEW_CATEGORY = "__new__";
 const TITLE_LIMIT = 120;
@@ -45,7 +47,8 @@ export function SavePromptDialog({
 
     const nextErrors: Record<string, string> = {};
     if (!title.trim()) nextErrors.title = "Give this prompt a title.";
-    else if (title.trim().length > TITLE_LIMIT) nextErrors.title = `Keep it under ${TITLE_LIMIT} characters.`;
+    else if (title.trim().length > TITLE_LIMIT)
+      nextErrors.title = `Keep it under ${TITLE_LIMIT} characters.`;
 
     if (!effectiveCategory) nextErrors.category = "Choose or name a category.";
     else if (effectiveCategory.length > CATEGORY_LIMIT) {
@@ -79,35 +82,34 @@ export function SavePromptDialog({
       title={mode === "create" ? "Save to library" : "Edit prompt"}
       description={
         mode === "create"
-          ? "Saved in this browser only. Export any time from the Library view."
+          ? "Saved in this browser only. Export any time from the Library."
           : undefined
       }
       footer={
         <>
-          <button type="button" className="btn-secondary" onClick={onClose}>
+          <Button variant="secondary" onClick={onClose}>
             Cancel
-          </button>
-          <button type="submit" form="save-prompt-form" className="btn-primary">
+          </Button>
+          <Button type="submit" form="save-prompt-form">
             {mode === "create" ? "Save prompt" : "Save changes"}
-          </button>
+          </Button>
         </>
       }
     >
       <form id="save-prompt-form" onSubmit={handleSubmit} noValidate className="space-y-4">
-        <TextField
+        <Input
           id="title"
           label="Title"
           required
           maxLength={TITLE_LIMIT}
-          showCounter
           value={title}
-          onChange={setTitle}
+          onChange={(event) => setTitle(event.target.value)}
           error={errors.title}
           hint="Suggested from your goal — edit it if you like."
         />
 
-        <div>
-          <SelectField
+        <div className="space-y-4">
+          <Select
             id="category"
             label="Category"
             required
@@ -117,73 +119,65 @@ export function SavePromptDialog({
             ]}
             placeholder="Choose a category…"
             value={creatingCategory ? NEW_CATEGORY : category}
-            onChange={(value) => {
-              setCategory(value);
+            onChange={(event) => {
+              setCategory(event.target.value);
               setErrors((previous) => ({ ...previous, category: "" }));
             }}
             error={errors.category}
           />
+
           {creatingCategory ? (
-            <div className="mt-2">
-              <label
-                htmlFor="new-category"
-                className="mb-1.5 block text-xs font-medium text-muted"
-              >
-                New category name
-              </label>
-              <input
-                id="new-category"
-                type="text"
-                maxLength={CATEGORY_LIMIT}
-                value={newCategory}
-                onChange={(event) => setNewCategory(event.target.value)}
-                placeholder="e.g. Client work"
-                className={cn("input", errors.category && "border-danger")}
-              />
-            </div>
+            <Input
+              id="new-category"
+              label="New category name"
+              maxLength={CATEGORY_LIMIT}
+              value={newCategory}
+              onChange={(event) => setNewCategory(event.target.value)}
+              placeholder="e.g. Client work"
+              error={errors.category}
+            />
           ) : null}
         </div>
 
         {mode === "edit" ? (
           <>
-            <TextField
+            <Textarea
               id="promptText"
               label="Prompt text"
               required
-              multiline
               rows={10}
               value={promptText}
-              onChange={setPromptText}
+              onChange={(event) => setPromptText(event.target.value)}
               error={errors.promptText}
-              controlClassName="font-mono text-xs leading-relaxed"
+              className="font-mono text-label"
             />
             <div className="grid gap-4 sm:grid-cols-2">
-              <TextField
+              <Input
                 id="edit-role"
                 label="Role"
                 maxLength={FIELD_LIMITS.role}
                 value={role}
-                onChange={setRole}
+                onChange={(event) => setRole(event.target.value)}
               />
-              <SelectField
+              <Select
                 id="edit-outputType"
                 label="Output type"
                 options={OUTPUT_TYPES}
                 placeholder="Choose an output type…"
                 value={outputType}
-                onChange={(value) => setOutputType(value as OutputType)}
+                onChange={(event) => setOutputType(event.target.value as OutputType)}
               />
             </div>
           </>
         ) : (
-          <dl className="rounded-xl border border-line bg-subtle/60 p-3 text-sm">
-            <div className="flex flex-wrap gap-x-2">
-              <dt className="text-muted">Role:</dt>
-              <dd>{initial.role || "—"}</dd>
+          <dl className="rounded-card border border-border p-4 text-body">
+            <div className="flex gap-2">
+              <dt className="text-fg-muted">Role:</dt>
+              <dd className="text-fg-secondary">{initial.role || "—"}</dd>
             </div>
-            <div className="mt-1 flex flex-wrap gap-x-2">
-              <dt className="text-muted">Output type:</dt>
-              <dd>{initial.outputType}</dd>
+            <div className="mt-1 flex gap-2">
+              <dt className="text-fg-muted">Output type:</dt>
+              <dd className="text-fg-secondary">{initial.outputType}</dd>
             </div>
           </dl>
         )}

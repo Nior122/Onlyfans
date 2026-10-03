@@ -2,7 +2,8 @@
  * The shared UI kit. Every visual decision in the app comes from these files,
  * and every colour comes from a token in app/globals.css.
  */
-export { Button, buttonClass, type ButtonProps, type ButtonSize, type ButtonVariant } from "./Button";
+export { Button, type ButtonProps } from "./Button";
+export { buttonClass, type ButtonSize, type ButtonVariant } from "./buttonClass";
 export { Badge, categoryHue, type DotHue } from "./Badge";
 export { Card, Skeleton } from "./Card";
 export { Chip } from "./Chip";

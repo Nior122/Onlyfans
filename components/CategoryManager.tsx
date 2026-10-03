@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { useLibrary } from "@/components/LibraryProvider";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { countInCategory } from "@/lib/library";
 import { DEFAULT_CATEGORIES } from "@/lib/types";
@@ -29,55 +31,52 @@ export function CategoryManager({ open, onClose }: CategoryManagerProps) {
       open={open}
       onClose={onClose}
       title="Categories"
-      description="Organise your library. Removing a category moves its prompts to “Other”."
+      description="Removing a category moves its prompts to “Other”."
     >
       <form onSubmit={handleAdd} className="flex items-end gap-2">
-        <div className="flex-1">
-          <label htmlFor="new-category-name" className="mb-1.5 block text-sm font-medium">
-            New category
-          </label>
-          <input
-            id="new-category-name"
-            type="text"
-            maxLength={40}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="e.g. Client work"
-            className="input"
-          />
-        </div>
-        <button type="submit" className="btn-primary" disabled={!name.trim()}>
-          <Plus className="h-4 w-4" aria-hidden="true" />
+        <Input
+          id="new-category-name"
+          label="New category"
+          maxLength={40}
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          placeholder="e.g. Client work"
+        />
+        <Button type="submit" disabled={!name.trim()} className="mb-0">
+          <Plus aria-hidden="true" />
           Add
-        </button>
+        </Button>
       </form>
 
-      <ul className="mt-5 divide-y divide-line rounded-xl border border-line">
+      <ul className="mt-6 divide-y divide-border rounded-card border border-border">
         {categories.map((category) => {
           const isDefault = (DEFAULT_CATEGORIES as readonly string[]).includes(category);
           const isProtected = category === PROTECTED;
           const count = countInCategory(prompts, category);
 
           return (
-            <li key={category} className="flex items-center justify-between gap-3 px-3 py-2.5">
+            <li key={category} className="flex items-center justify-between gap-3 px-4 py-2.5">
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{category}</p>
-                <p className="text-xs text-muted">
+                <p className="truncate text-body">{category}</p>
+                <p className="text-label text-fg-muted">
                   {count} prompt{count === 1 ? "" : "s"}
                   {isDefault ? " · default" : ""}
                 </p>
               </div>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => deleteCategory(category)}
                 disabled={isProtected}
-                className="btn-ghost !px-2 !py-1.5 text-xs hover:text-danger"
-                aria-label={`Delete category ${category}`}
-                title={isProtected ? "“Other” is the fallback category and cannot be removed." : undefined}
+                aria-label={`Remove category ${category}`}
+                title={
+                  isProtected
+                    ? "“Other” is the fallback category and cannot be removed."
+                    : `Remove ${category}`
+                }
               >
-                <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                Remove
-              </button>
+                <Trash2 aria-hidden="true" />
+              </Button>
             </li>
           );
         })}

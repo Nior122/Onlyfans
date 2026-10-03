@@ -25,7 +25,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
         rows={rows}
         aria-invalid={error ? true : undefined}
         aria-describedby={fieldDescribedBy(id, hint, error)}
-        className={cn(controlClass, "min-h-[120px] resize-y py-3", className)}
+        className={cn(controlClass, "min-h-[120px] w-full resize-y py-3", className)}
         {...props}
       />
     </FieldShell>

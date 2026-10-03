@@ -14,6 +14,10 @@ export type SelectProps = Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "i
   placeholder?: string;
   hint?: string;
   error?: string;
+  /** Keeps the label for screen readers without showing it (toolbars). */
+  labelHidden?: boolean;
+  /** `auto` sizes to content, for filters and toolbars. */
+  width?: "full" | "auto";
 };
 
 /**
@@ -21,19 +25,43 @@ export type SelectProps = Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "i
  * default arrow hidden so the field matches the input styling exactly.
  */
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
-  { id, label, options, placeholder, hint, error, required, className, ...props },
+  {
+    id,
+    label,
+    options,
+    placeholder,
+    hint,
+    error,
+    required,
+    labelHidden,
+    width = "full",
+    className,
+    ...props
+  },
   ref,
 ) {
   return (
-    <FieldShell id={id} label={label} hint={hint} error={error} required={required}>
-      <div className="relative">
+    <FieldShell
+      id={id}
+      label={label}
+      hint={hint}
+      error={error}
+      required={required}
+      labelHidden={labelHidden}
+    >
+      <div className={cn("relative", width === "auto" && "inline-block")}>
         <select
           ref={ref}
           id={id}
           name={props.name ?? id}
           aria-invalid={error ? true : undefined}
           aria-describedby={fieldDescribedBy(id, hint, error)}
-          className={cn(controlClass, "h-10 appearance-none pr-8", className)}
+          className={cn(
+            controlClass,
+            "h-10 appearance-none pr-8",
+            width === "full" ? "w-full" : "w-auto",
+            className,
+          )}
           {...props}
         >
           {placeholder ? <option value="">{placeholder}</option> : null}

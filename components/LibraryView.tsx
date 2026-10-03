@@ -1,17 +1,25 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { AlertTriangle, Library, X } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { AlertTriangle, FileText, X } from "lucide-react";
 import { CategoryManager } from "@/components/CategoryManager";
 import { useLibrary } from "@/components/LibraryProvider";
 import { DeletePromptDialog, PromptViewDialog } from "@/components/LibraryModals";
-import { LibraryToolbar, type SortOrder } from "@/components/LibraryToolbar";
+import { LibraryActions, LibraryToolbar, type SortOrder } from "@/components/LibraryToolbar";
 import { PromptCard } from "@/components/PromptCard";
 import { SavePromptDialog } from "@/components/SavePromptDialog";
+import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Card";
 import type { SavedPrompt } from "@/lib/types";
 
-export function LibraryView() {
-  const { prompts, ready, storageAvailable, updatePrompt, deletePrompt } = useLibrary();
+type LibraryViewProps = {
+  /** Lets the empty state send the visitor to the builder. */
+  onNavigateToBuilder: () => void;
+};
+
+export function LibraryView({ onNavigateToBuilder }: LibraryViewProps) {
+  const { prompts, ready, storageAvailable, updatePrompt, deletePrompt, importLibrary } =
+    useLibrary();
 
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
@@ -20,6 +28,8 @@ export function LibraryView() {
   const [editing, setEditing] = useState<SavedPrompt | null>(null);
   const [deleting, setDeleting] = useState<SavedPrompt | null>(null);
   const [managingCategories, setManagingCategories] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -47,16 +57,47 @@ export function LibraryView() {
     );
   }, [prompts, query, category, sort]);
 
+  async function handleImportFile(file: File | undefined) {
+    if (!file) return;
+    setImporting(true);
+    await importLibrary(file);
+    setImporting(false);
+    // Allow re-importing the same filename.
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-section font-semibold">Library</h2>
+          {ready && prompts.length > 0 ? (
+            <p className="mt-1 text-label text-fg-muted">
+              {prompts.length} saved prompt{prompts.length === 1 ? "" : "s"}
+            </p>
+          ) : null}
+        </div>
+
+        <LibraryActions
+          importing={importing}
+          onImport={() => fileInputRef.current?.click()}
+        />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json,.json"
+          className="sr-only"
+          aria-label="Import a prompt library JSON file"
+          tabIndex={-1}
+          onChange={(event) => void handleImportFile(event.target.files?.[0])}
+        />
+      </div>
+
       {/* localStorage can be blocked by private mode or site settings; say so
           rather than letting saves fail silently. */}
       {ready && !storageAvailable ? (
-        <p
-          role="status"
-          className="flex items-start gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2.5 text-sm text-amber-700 dark:text-amber-300"
-        >
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+        <p className="flex items-start gap-2 rounded-card border border-border bg-surface p-4 text-body text-fg-secondary">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-error" aria-hidden="true" />
           This browser is blocking local storage, so prompts cannot be saved, imported or exported
           here. Try a normal (non-private) window.
         </p>
@@ -76,27 +117,31 @@ export function LibraryView() {
       {!ready ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-hidden="true">
           {[0, 1, 2].map((index) => (
-            <div key={index} className="card h-48 animate-pulse bg-subtle/40 p-4" />
+            <Skeleton key={index} className="h-44 rounded-card" />
           ))}
         </div>
       ) : prompts.length === 0 ? (
         <EmptyState
-          title="Your library is empty"
-          body="Generate a master prompt in the Builder tab, then choose “Save to library” to keep it here."
-        />
+          title="No saved prompts yet"
+          body="Generate a master prompt in the builder, then choose Save to library to keep it here."
+        >
+          <Button onClick={onNavigateToBuilder}>Go to the builder</Button>
+        </EmptyState>
       ) : filtered.length === 0 ? (
-        <EmptyState title="No prompts match your filters" body="Try a different search or category.">
-          <button
-            type="button"
+        <EmptyState
+          title="No prompts match your filters"
+          body="Try a different search term or category."
+        >
+          <Button
+            variant="secondary"
             onClick={() => {
               setQuery("");
               setCategory("all");
             }}
-            className="btn-secondary"
           >
-            <X className="h-4 w-4" aria-hidden="true" />
+            <X aria-hidden="true" />
             Clear filters
-          </button>
+          </Button>
         </EmptyState>
       ) : (
         <ul className="grid list-none gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -113,14 +158,7 @@ export function LibraryView() {
         </ul>
       )}
 
-      <PromptViewDialog
-        prompt={viewing}
-        onClose={() => setViewing(null)}
-        onEdit={(prompt) => {
-          setEditing(prompt);
-          setViewing(null);
-        }}
-      />
+      <PromptViewDialog prompt={viewing} onClose={() => setViewing(null)} />
 
       <DeletePromptDialog
         prompt={deleting}
@@ -167,11 +205,13 @@ function EmptyState({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="card grid place-items-center gap-3 px-6 py-16 text-center">
-      <Library className="h-6 w-6 text-brand" aria-hidden="true" />
-      <p className="text-sm font-medium">{title}</p>
-      <p className="max-w-md text-sm text-muted">{body}</p>
-      {children}
+    <div className="rounded-card border border-border bg-surface px-6 py-16">
+      <div className="mx-auto flex max-w-sm flex-col items-center gap-3 text-center">
+        <FileText className="size-5 text-fg-muted" aria-hidden="true" />
+        <h3 className="text-body font-semibold">{title}</h3>
+        <p className="text-body text-fg-secondary">{body}</p>
+        {children}
+      </div>
     </div>
   );
 }

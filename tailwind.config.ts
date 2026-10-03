@@ -51,6 +51,8 @@ const config: Config = {
         /* Status, used sparingly */
         success: "rgb(var(--success) / <alpha-value>)",
         error: "rgb(var(--error) / <alpha-value>)",
+        "error-solid": "rgb(var(--error-solid) / <alpha-value>)",
+        "error-solid-fg": "rgb(var(--error-solid-fg) / <alpha-value>)",
 
         /* --- transitional aliases (phase 6 removes this block) --- */
         line: "rgb(var(--border) / <alpha-value>)",

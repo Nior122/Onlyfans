@@ -4,6 +4,9 @@
  * Label above, control, then helper or error text below — the only form-field
  * layout in the app. Owns the aria wiring so every control behaves identically:
  * `aria-describedby` points at whichever message is showing.
+ *
+ * `labelHidden` keeps the label for screen readers while omitting the visible
+ * row, which is what toolbar controls need.
  */
 export function FieldShell({
   id,
@@ -11,6 +14,7 @@ export function FieldShell({
   hint,
   error,
   required = false,
+  labelHidden = false,
   trailing,
   children,
 }: {
@@ -19,26 +23,39 @@ export function FieldShell({
   hint?: string;
   error?: string;
   required?: boolean;
+  labelHidden?: boolean;
   /** Optional right-aligned content in the label row, e.g. a character counter. */
   trailing?: React.ReactNode;
   children: React.ReactNode;
 }) {
+  const labelText = (
+    <>
+      {label}
+      {required ? (
+        <>
+          {" "}
+          <span aria-hidden="true" className="text-error">
+            *
+          </span>
+        </>
+      ) : null}
+    </>
+  );
+
   return (
     <div className="w-full">
-      <div className="mb-2 flex items-baseline justify-between gap-2">
-        <label htmlFor={id} className="text-label text-fg-secondary">
-          {label}
-          {required ? (
-            <>
-              {" "}
-              <span aria-hidden="true" className="text-error">
-                *
-              </span>
-            </>
-          ) : null}
+      {labelHidden ? (
+        <label htmlFor={id} className="sr-only">
+          {labelText}
         </label>
-        {trailing}
-      </div>
+      ) : (
+        <div className="mb-2 flex items-baseline justify-between gap-2">
+          <label htmlFor={id} className="text-label text-fg-secondary">
+            {labelText}
+          </label>
+          {trailing}
+        </div>
+      )}
 
       {children}
 
@@ -55,9 +72,13 @@ export function FieldShell({
   );
 }
 
-/** Shared control styling so input, textarea and select match exactly. */
+/**
+ * Shared control styling so input, textarea and select match exactly.
+ * Width is applied by each component, not here, so a control can be full width
+ * in a form and auto width in a toolbar without fighting itself.
+ */
 export const controlClass =
-  "w-full rounded-control border border-border bg-bg px-3 text-body text-fg " +
+  "rounded-control border border-border bg-bg px-3 text-body text-fg " +
   "transition-colors duration-150 placeholder:text-fg-placeholder hover:border-border-strong " +
   "focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40 " +
   "disabled:cursor-not-allowed disabled:opacity-60 aria-[invalid=true]:border-error";

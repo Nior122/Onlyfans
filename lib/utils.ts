@@ -1,3 +1,5 @@
+import type { OutputType } from "@/lib/types";
+
 /** localStorage keys used across the app, kept in one place to avoid typos. */
 export const STORAGE_KEYS = {
   theme: "mpb:theme",
@@ -11,6 +13,14 @@ export const STORAGE_KEYS = {
  */
 export function cn(...classes: Array<string | false | null | undefined>): string {
   return classes.filter(Boolean).join(" ");
+}
+
+/** Collision-resistant id with a fallback for browsers without randomUUID. */
+export function uid(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `id-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 /**
@@ -54,4 +64,75 @@ export function countWords(text: string): number {
 /** Counts markdown level-2 headings — the seven required master-prompt sections. */
 export function countSections(text: string): number {
   return (text.match(/^##\s+\S.*$/gm) ?? []).length;
+}
+
+/** Removes markdown headings and emphasis markers for card previews. */
+export function stripMarkdown(text: string): string {
+  return text
+    .replace(/^#{1,6}\s+.*$/gm, " ")
+    .replace(/[*_`>]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Truncates on a word boundary and appends an ellipsis. */
+export function truncate(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  const base = lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut;
+  return `${base.trimEnd()}…`;
+}
+
+/** Suggests a library title from the goal: first sentence, trimmed to length. */
+export function suggestTitle(goal: string): string {
+  const firstSentence = goal.trim().split(/[.\n]/)[0]?.trim() ?? "";
+  const base = firstSentence || goal.trim();
+  return truncate(base.replace(/[.,;:]+$/, ""), 70);
+}
+
+/** Short, locale-aware date for cards. Only ever runs on the client. */
+export function formatDate(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "Unknown date";
+  return new Intl.DateTimeFormat(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
+
+/** Best-guess starting category for a freshly generated prompt. */
+export function guessCategory(outputType: OutputType): string {
+  switch (outputType) {
+    case "Code":
+      return "Coding";
+    case "Email":
+    case "Social media post":
+    case "Product description":
+      return "Marketing";
+    case "Lesson plan":
+      return "Education";
+    case "Report":
+      return "Research";
+    case "Article":
+    case "Blog post":
+    case "Script":
+      return "Writing";
+    default:
+      return "Other";
+  }
+}
+
+/** Triggers a client-side JSON download. */
+export function downloadJson(filename: string, data: unknown): void {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }

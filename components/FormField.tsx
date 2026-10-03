@@ -130,10 +130,12 @@ export function TextField({
   );
 }
 
+type SelectOption = string | { value: string; label: string };
+
 type SelectFieldProps = BaseFieldProps & {
   value: string;
   onChange: (value: string) => void;
-  options: readonly string[];
+  options: readonly SelectOption[];
   placeholder: string;
 };
 
@@ -162,11 +164,14 @@ export function SelectField({
         className={cn("input", error && "border-danger focus:border-danger focus:ring-danger/25")}
       >
         <option value="">{placeholder}</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
+        {options.map((option) => {
+          const item = typeof option === "string" ? { value: option, label: option } : option;
+          return (
+            <option key={item.value} value={item.value}>
+              {item.label}
+            </option>
+          );
+        })}
       </select>
     </FieldShell>
   );

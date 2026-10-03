@@ -98,6 +98,16 @@ export function isGenerateSuccess(
   return typeof (response as GenerateSuccessResponse).prompt === "string";
 }
 
+/** Values collected by the save dialog, before a SavedPrompt exists. */
+export type NewPromptValues = {
+  title: string;
+  category: string;
+  role: string;
+  outputType: OutputType;
+  goal: string;
+  promptText: string;
+};
+
 /** Lifecycle of a single generation request, rendered by the result panel. */
 export type GenerationState =
   | { status: "idle" }

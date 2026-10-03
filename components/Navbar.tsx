@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { Bookmark, Sparkles, Wand2 } from "lucide-react";
+import { useLibrary } from "@/components/LibraryProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,8 @@ type NavbarProps = {
 
 export function Navbar({ view, onViewChange }: NavbarProps) {
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const { prompts, ready } = useLibrary();
+  const savedCount = ready ? prompts.length : 0;
 
   /** Left/Right arrows move between tabs, as expected of a tablist. */
   function onKeyDown(event: React.KeyboardEvent<HTMLButtonElement>, index: number) {
@@ -77,6 +80,17 @@ export function Navbar({ view, onViewChange }: NavbarProps) {
                 >
                   <Icon className="h-4 w-4" aria-hidden="true" />
                   <span>{tab.label}</span>
+                  {tab.id === "library" && savedCount > 0 ? (
+                    <span
+                      className={cn(
+                        "rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums",
+                        selected ? "bg-brand-fg/25" : "bg-subtle",
+                      )}
+                    >
+                      {savedCount}
+                      <span className="sr-only"> saved prompts</span>
+                    </span>
+                  ) : null}
                 </button>
               );
             })}

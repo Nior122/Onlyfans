@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GeneratorForm } from "@/components/GeneratorForm";
+import { useLibrary } from "@/components/LibraryProvider";
 import { ResultPanel } from "@/components/ResultPanel";
+import { SavePromptDialog } from "@/components/SavePromptDialog";
 import {
   isGenerateSuccess,
   type GenerateErrorResponse,
@@ -10,15 +12,20 @@ import {
   type GenerationState,
   type GeneratorInput,
 } from "@/lib/types";
+import { guessCategory, suggestTitle } from "@/lib/utils";
+import { isOutputType } from "@/lib/validation";
 
 /**
- * Owns the generation lifecycle for one Builder tab: the form below only
- * collects input, and the result panel below only renders state.
+ * Owns the generation lifecycle for the Builder tab: the form only collects
+ * input, the result panel only renders state, and this wires them to the API
+ * and the saved-prompt library.
  */
 export function BuilderView() {
   const [state, setState] = useState<GenerationState>({ status: "idle" });
   const [lastInput, setLastInput] = useState<GeneratorInput | null>(null);
+  const [pendingSave, setPendingSave] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const { savePrompt } = useLibrary();
 
   // Cancel any in-flight request when the view unmounts.
   useEffect(() => () => abortRef.current?.abort(), []);
@@ -66,17 +73,44 @@ export function BuilderView() {
     if (lastInput) void generate(lastInput);
   }, [generate, lastInput]);
 
+  const outputType = lastInput && isOutputType(lastInput.outputType) ? lastInput.outputType : "Custom";
+
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-start">
-      <GeneratorForm
-        isGenerating={state.status === "loading"}
-        onGenerate={(input) => void generate(input)}
-        externalErrors={state.status === "error" ? state.fields : undefined}
-      />
-      <ResultPanel
-        state={state}
-        onRegenerate={lastInput ? regenerate : undefined}
-      />
-    </div>
+    <>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-start">
+        <GeneratorForm
+          isGenerating={state.status === "loading"}
+          onGenerate={(input) => void generate(input)}
+          externalErrors={state.status === "error" ? state.fields : undefined}
+        />
+        <ResultPanel
+          state={state}
+          onRegenerate={lastInput ? regenerate : undefined}
+          onSave={setPendingSave}
+        />
+      </div>
+
+      {/* Keyed so the dialog re-initialises with the current prompt each time. */}
+      {pendingSave !== null ? (
+        <SavePromptDialog
+          key={pendingSave.slice(0, 32)}
+          open
+          mode="create"
+          initial={{
+            title: suggestTitle(lastInput?.goal ?? "Untitled prompt"),
+            category: guessCategory(outputType),
+            role: lastInput?.role ?? "",
+            outputType,
+            goal: lastInput?.goal ?? "",
+            promptText: pendingSave,
+          }}
+          onClose={() => setPendingSave(null)}
+          onSubmit={(values) => {
+            savePrompt(values);
+            setPendingSave(null);
+          }}
+        />
+      ) : null}
+    </>
   );
 }

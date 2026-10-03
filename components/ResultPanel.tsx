@@ -1,7 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, Check, FileText, Loader2, Pencil, RefreshCw, X } from "lucide-react";
+import {
+  AlertTriangle,
+  BookmarkPlus,
+  Check,
+  FileText,
+  Loader2,
+  Pencil,
+  RefreshCw,
+  X,
+} from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
 import type { GenerationState } from "@/lib/types";
 import { countSections, countWords } from "@/lib/utils";
@@ -12,9 +21,11 @@ type ResultPanelProps = {
   state: GenerationState;
   /** Re-runs the last request. Absent until a first generation has been made. */
   onRegenerate?: () => void;
+  /** Receives the current text (including any edits) so it can be saved. */
+  onSave?: (promptText: string) => void;
 };
 
-export function ResultPanel({ state, onRegenerate }: ResultPanelProps) {
+export function ResultPanel({ state, onRegenerate, onSave }: ResultPanelProps) {
   /**
    * One draft record, tagged with the prompt it belongs to. Because the shown
    * text is derived, a new generation automatically drops a stale draft and no
@@ -152,6 +163,16 @@ export function ResultPanel({ state, onRegenerate }: ResultPanelProps) {
               ) : (
                 <>
                   <CopyButton text={displayText} label="Copy" />
+                  {onSave ? (
+                    <button
+                      type="button"
+                      onClick={() => onSave(displayText)}
+                      className="btn-secondary"
+                    >
+                      <BookmarkPlus className="h-4 w-4" aria-hidden="true" />
+                      Save to library
+                    </button>
+                  ) : null}
                   <button
                     type="button"
                     onClick={() =>

@@ -16,7 +16,7 @@ export function Card({
   children: React.ReactNode;
 }) {
   const PADDING = { none: "", md: "p-5", lg: "p-6" } as const;
-  const TONE = { surface: "bg-surface", page: "bg-bg" } as const;
+  const TONE = { surface: "bg-surface", page: "bg-bg dark:bg-surface" } as const;
 
   return (
     <div

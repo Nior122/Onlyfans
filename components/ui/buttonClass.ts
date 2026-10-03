@@ -12,7 +12,7 @@ const BASE =
   "inline-flex shrink-0 select-none items-center justify-center gap-2 rounded-control " +
   "text-body font-medium transition-colors duration-150 " +
   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent " +
-  "disabled:pointer-events-none disabled:opacity-50";
+  "disabled:cursor-not-allowed disabled:opacity-60";
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary: "bg-accent-solid text-accent-fg hover:bg-accent-solid-hover active:bg-accent-solid-hover",

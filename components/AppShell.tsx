@@ -44,10 +44,10 @@ export function AppShell() {
             <Navbar view={view} onViewChange={setView} />
 
             <main id="main" className="flex-1">
-              <Container className="pb-12 pt-10">
+              <Container className="pb-16 pt-12">
                 <section className="mb-8">
                   <h1 className="text-title font-semibold">Turn a goal into a master prompt</h1>
-                  <p className="mt-2 max-w-intro text-body text-fg-secondary">
+                  <p className="mt-2 max-w-intro text-lead text-fg-secondary">
                     Describe what you need, pick a role and an output type — you get a structured
                     prompt ready to paste anywhere.
                   </p>

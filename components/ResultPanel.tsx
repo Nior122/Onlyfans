@@ -136,7 +136,7 @@ export function ResultPanel({ state, onRegenerate, onSave }: ResultPanelProps) {
           {state.status === "idle" ? (
             <p className="flex items-start gap-2 text-body text-fg-muted">
               <FileText className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-              Fill in your goal, role and output type, then generate — your prompt appears here.
+              Your prompt will appear here — fill in your goal, role and output type, then generate.
             </p>
           ) : null}
 

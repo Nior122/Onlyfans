@@ -29,8 +29,8 @@
     /* Text — 17.7:1, 7.7:1, 4.8:1 on #FFFFFF */
     --fg: 24 24 27; /* #18181B */
     --fg-secondary: 82 82 91; /* #52525B */
-    --fg-muted: 113 113 122; /* #71717A — 4.83:1 on white, 4.63:1 on surface */
-    --fg-placeholder: 113 113 122; /* #71717A — placeholder text is text: AA applies */
+    --fg-muted: 110 110 118; /* #6E6E76 — 5.05:1 on white, 4.84:1 on surface, 4.60:1 on subtle */
+    --fg-placeholder: 110 110 118; /* #6E6E76 — placeholder text is text: AA applies */
 
     /* One accent hue, three applications, because a single value cannot
        satisfy both roles: edges need 3:1, text needs 4.5:1, and a filled

@@ -133,7 +133,7 @@ export function GeneratorForm({ isGenerating, onGenerate, externalErrors }: Gene
             label="Output type"
             required
             options={OUTPUT_TYPES}
-            placeholder="Select an output type…"
+            placeholder="Select an output type"
             value={values.outputType}
             onChange={(event) =>
               update("outputType", event.target.value as FormValues["outputType"])
@@ -153,7 +153,7 @@ export function GeneratorForm({ isGenerating, onGenerate, externalErrors }: Gene
               className="flex w-full items-center gap-2 py-4 text-left text-body font-medium text-fg transition-colors duration-150"
             >
               Advanced options
-              <span className="hidden text-label font-normal text-fg-muted sm:inline">
+              <span className="hidden text-field font-normal text-fg-muted sm:inline">
                 tone, audience, length, constraints
               </span>
               <ChevronDown
@@ -169,48 +169,50 @@ export function GeneratorForm({ isGenerating, onGenerate, externalErrors }: Gene
               {showAdvanced ? (
                 <motion.div
                   id="advanced-fields"
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 4 }}
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="grid gap-4 pb-4 sm:grid-cols-2"
+                  className="overflow-hidden"
                 >
-                  <Input
-                    id="tone"
-                    label="Tone"
-                    maxLength={FIELD_LIMITS.tone}
-                    value={values.tone ?? ""}
-                    onChange={(event) => update("tone", event.target.value)}
-                    error={errorFor("tone")}
-                    placeholder="Direct, warm, no jargon"
-                  />
-                  <Input
-                    id="audience"
-                    label="Target audience"
-                    maxLength={FIELD_LIMITS.audience}
-                    value={values.audience ?? ""}
-                    onChange={(event) => update("audience", event.target.value)}
-                    error={errorFor("audience")}
-                    placeholder="First-time founders"
-                  />
-                  <Input
-                    id="length"
-                    label="Desired length"
-                    maxLength={FIELD_LIMITS.length}
-                    value={values.length ?? ""}
-                    onChange={(event) => update("length", event.target.value)}
-                    error={errorFor("length")}
-                    placeholder="800-1000 words"
-                  />
-                  <Input
-                    id="constraints"
-                    label="Extra constraints"
-                    maxLength={FIELD_LIMITS.constraints}
-                    value={values.constraints ?? ""}
-                    onChange={(event) => update("constraints", event.target.value)}
-                    error={errorFor("constraints")}
-                    placeholder="No emoji, cite sources"
-                  />
+                  <div className="grid gap-4 pb-4 sm:grid-cols-2">
+                    <Input
+                      id="tone"
+                      label="Tone"
+                      maxLength={FIELD_LIMITS.tone}
+                      value={values.tone ?? ""}
+                      onChange={(event) => update("tone", event.target.value)}
+                      error={errorFor("tone")}
+                      placeholder="Direct, warm, no jargon"
+                    />
+                    <Input
+                      id="audience"
+                      label="Target audience"
+                      maxLength={FIELD_LIMITS.audience}
+                      value={values.audience ?? ""}
+                      onChange={(event) => update("audience", event.target.value)}
+                      error={errorFor("audience")}
+                      placeholder="First-time founders"
+                    />
+                    <Input
+                      id="length"
+                      label="Desired length"
+                      maxLength={FIELD_LIMITS.length}
+                      value={values.length ?? ""}
+                      onChange={(event) => update("length", event.target.value)}
+                      error={errorFor("length")}
+                      placeholder="800-1000 words"
+                    />
+                    <Input
+                      id="constraints"
+                      label="Extra constraints"
+                      maxLength={FIELD_LIMITS.constraints}
+                      value={values.constraints ?? ""}
+                      onChange={(event) => update("constraints", event.target.value)}
+                      error={errorFor("constraints")}
+                      placeholder="No emoji, cite sources"
+                    />
+                  </div>
                 </motion.div>
               ) : null}
             </AnimatePresence>
@@ -223,7 +225,7 @@ export function GeneratorForm({ isGenerating, onGenerate, externalErrors }: Gene
             size="lg"
             disabled={isGenerating}
             aria-busy={isGenerating}
-            className="w-full"
+            className="h-cta w-full"
           >
             {isGenerating ? (
               <Loader2 className="animate-spin" aria-hidden="true" />

@@ -4,9 +4,6 @@ import type { Config } from "tailwindcss";
  * Every value here maps to a CSS variable declared in app/globals.css, so both
  * themes are driven by one set of names. Add colours as tokens first, never as
  * literal hex values in components.
- *
- * `legacy` keys (line, muted, brand, danger, and the shadow names) exist only
- * so components can be migrated phase by phase; they are removed in phase 6.
  */
 const config: Config = {
   darkMode: "class",
@@ -121,10 +118,6 @@ const config: Config = {
       /* One soft shadow, floating elements only. */
       boxShadow: {
         overlay: "var(--shadow-overlay)",
-      },
-
-      transitionDuration: {
-        DEFAULT: "150ms",
       },
     },
   },

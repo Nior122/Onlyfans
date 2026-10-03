@@ -85,14 +85,17 @@ export function BuilderView() {
           onGenerate={(input) => void generate(input)}
           externalErrors={state.status === "error" ? state.fields : undefined}
         />
-        <ResultPanel
-          state={state}
-          onRegenerate={lastInput ? regenerate : undefined}
-          onSave={(promptText) => {
-            setPendingSave(promptText);
-            setSaveRequestId((id) => id + 1);
-          }}
-        />
+        {/* Sticky on desktop so the prompt stays in view while the form scrolls. */}
+        <div className="lg:sticky lg:top-20">
+          <ResultPanel
+            state={state}
+            onRegenerate={lastInput ? regenerate : undefined}
+            onSave={(promptText) => {
+              setPendingSave(promptText);
+              setSaveRequestId((id) => id + 1);
+            }}
+          />
+        </div>
       </div>
 
       {/* Keyed so the dialog re-initialises with the current prompt each time. */}

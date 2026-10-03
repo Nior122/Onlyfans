@@ -55,7 +55,7 @@ the browser.
 | --- | --- |
 | Framework | Next.js 16 (App Router) + React 19 |
 | Language | TypeScript (strict, `noUncheckedIndexedAccess`, no `any`) |
-| Styling | Tailwind CSS 3.4 with CSS-variable theming |
+| Styling | Tailwind CSS 3.4 with CSS-variable theming (tokens in `app/globals.css`) |
 | Motion | Framer Motion (small transitions only) |
 | Icons | lucide-react |
 | LLM | OpenRouter `chat/completions` |
@@ -110,7 +110,8 @@ Changing `.env.local` while `npm run dev` is running reloads the variables autom
 app/
   api/generate/route.ts   POST endpoint: validate → rate limit → OpenRouter → normalise
   error.tsx               Route-level error boundary
-  globals.css             Theme tokens, component classes, reduced-motion rules
+  fonts/                  Self-hosted Inter (subset, OFL) — no font CDN at build or run time
+  globals.css             Design tokens, base styles, reduced-motion rules
   layout.tsx              Metadata, pre-paint theme script, skip link
   not-found.tsx           404 page
   page.tsx                Server component that renders <AppShell />
@@ -118,22 +119,31 @@ components/
   AppShell.tsx            Owns the active view; wraps providers and motion config
   BuilderView.tsx         Generation lifecycle for the Builder tab
   CategoryManager.tsx     Add / remove categories
-  CopyButton.tsx          Copy with "Copied" feedback
-  FormField.tsx           Shared text / select field markup
+  CopyButton.tsx          Copy with icon and live-region feedback
   GeneratorForm.tsx       The form, chips, advanced fields, validation
   LibraryModals.tsx       Full-view and delete-confirmation dialogs
   LibraryProvider.tsx     Context + useLibrary() over localStorage
   LibraryToolbar.tsx      Search, filter, sort, import, export
   LibraryView.tsx         The library grid and its empty states
-  Modal.tsx               Accessible dialog (focus trap, Escape, scroll lock)
   Navbar.tsx              Brand, tabs, theme toggle
   PromptCard.tsx          One saved prompt
   ResultPanel.tsx         Empty / loading / error / success states
   RoleChips.tsx           Quick-pick roles
   SavePromptDialog.tsx    Save and edit dialog
   ThemeToggle.tsx         Light / dark toggle
-  Toast.tsx               Toast provider and cards
   useLibraryActions.ts    Library mutations + persistence
+  ui/                     The design system; the only place styling is defined
+    buttonClass.ts        Button recipes (shared with the 404 page)
+    Button.tsx            Three variants, three heights
+    Chip.tsx              28px quick-pick pill
+    Badge.tsx             Neutral pill + category dot colour
+    Card.tsx              Bordered surface, plus the loading skeleton
+    FieldShell.tsx        Label / hint / error layout and the control classes
+    Input.tsx             Single-line field, optional leading icon
+    Textarea.tsx          Multi-line field
+    Select.tsx            Native select with matching styling
+    Modal.tsx             Accessible dialog (focus trap, Escape, scroll lock)
+    Toast.tsx             Toast provider and cards
 lib/
   library.ts              Pure SavedPrompt transforms
   libraryFile.ts          JSON export / import / merge
